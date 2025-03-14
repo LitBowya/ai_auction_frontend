@@ -1,14 +1,34 @@
 import AuctionCard from "@/components/AuctionCard";
-import withAuth from "@/hoc/withAuth";
 
-// Fetch auctions from the API
+// Add revalidation or dynamic rendering to avoid build-time errors
+export const dynamic = 'force-dynamic'; // Skip static pre-rendering
+
+// Fetch auctions from the API with proper error handling
 async function fetchAuctions() {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auction/all`);
-  return res.json();
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auction/all`, {
+      // Add a reasonable timeout
+      cache: 'no-store', // Don't cache responses during build
+      next: { revalidate: 60 } // Revalidate every 60 seconds
+    });
+
+    if (!res.ok) {
+      // Log the error for debugging
+      console.error(`API error: ${res.status} ${res.statusText}`);
+      return []; // Return empty array instead of crashing
+    }
+
+    return await res.json();
+  } catch (error) {
+    // Catch any other errors (network issues, parsing problems)
+    console.error("Failed to fetch auctions:", error);
+    return []; // Return empty array on any error
+  }
 }
 
 export default async function AuctionPage() {
-  const auctions = await fetchAuctions();
+  // Safely get auctions, defaulting to empty array
+  const auctions = await fetchAuctions() || [];
 
   // Separate auctions into categories
   const now = new Date();
@@ -19,6 +39,15 @@ export default async function AuctionPage() {
   return (
     <main className="px-6 py-10">
       <h1 className="text-3xl font-bold text-end mb-6">Auctions</h1>
+
+      {/* Show message if no auctions available */}
+      {auctions.length === 0 && (
+        <div className="text-center py-10">
+          <p className="text-lg text-gray-600">
+            No auctions available at the moment. Please check back later.
+          </p>
+        </div>
+      )}
 
       {/* Current Auctions */}
       {currentAuctions.length > 0 && (
