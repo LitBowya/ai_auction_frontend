@@ -35,7 +35,7 @@ export default async function AuctionDetail(props) {
   const id = params.id;
   
   const {auction} = await fetchAuction(id);
-  console.log(auctions)
+  console.log(auction)
   
   if (!auction) {
     console.error("Auction not found for id:", id);
