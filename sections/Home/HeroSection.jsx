@@ -7,7 +7,7 @@ export default async function HeroSection() {
   // Fetch data from your auction API endpoint.
   // The revalidate option caches the fetched data for 5 minutes.
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auction/latest`, {
-    next: { revalidate: 3600 },
+    next: { revalidate: 5 },
   });
   const auction = await res.json();
 
