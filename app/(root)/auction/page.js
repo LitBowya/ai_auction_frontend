@@ -28,7 +28,9 @@ async function fetchAuctions() {
 
 export default async function AuctionPage() {
   // Safely get auctions, defaulting to empty array
-  const auctions = await fetchAuctions() || [];
+  const {auctions} = await fetchAuctions() || [];
+
+  console.log(auctions)
 
   // Separate auctions into categories
   const now = new Date();
