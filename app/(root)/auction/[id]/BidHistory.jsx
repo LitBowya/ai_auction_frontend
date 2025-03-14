@@ -1,5 +1,5 @@
 async function fetchBids(auctionId) {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/bid/${auctionId}`);
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/bids/${auctionId}`);
   
   if (!res.ok) return [];
   
