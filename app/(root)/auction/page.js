@@ -1,7 +1,7 @@
 import AuctionCard from "@/components/AuctionCard";
 
-// Add revalidation or dynamic rendering to avoid build-time errors
-export const dynamic = 'force-dynamic'; // Skip static pre-rendering
+// // Add revalidation or dynamic rendering to avoid build-time errors
+// export const dynamic = 'force-dynamic'; // Skip static pre-rendering
 
 // Fetch auctions from the API with proper error handling
 async function fetchAuctions() {
