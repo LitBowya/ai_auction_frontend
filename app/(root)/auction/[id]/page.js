@@ -42,7 +42,7 @@ export default async function AuctionDetail(props) {
   }
   
   return (
-    <main className="max-w-4xl mx-auto px-6 py-10">
+    <main className="max-w-4xl mx-auto px-6 py-24">
       <h1 className="text-3xl font-bold text-center mb-6">
         {auction.artwork?.title || "No Title"}
       </h1>
@@ -80,10 +80,10 @@ export default async function AuctionDetail(props) {
       </div>
   
       {/* Bid Form & History */}
-      {/* <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
         <BidForm auctionId={auction._id} highestBid={auction.highestBid || auction.startingPrice} />
         <BidHistory auctionId={auction._id} />
-      </div> */}
+      </div>
     </main>
   );
 }

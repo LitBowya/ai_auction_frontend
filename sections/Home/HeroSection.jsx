@@ -15,7 +15,7 @@ export default async function HeroSection() {
     return <p className="text-center text-gray-500">No auction available.</p>;
 
   return (
-    <section className="relative w-full flex items-center justify-center bg-gray-900 text-white">
+    <section className="relative py-24 w-full flex items-center justify-center bg-gray-900 text-white">
       <div
         className="absolute inset-0 bg-cover bg-center opacity-40"
         style={{
