@@ -21,6 +21,7 @@ const LoginPage = () => {
     clearErrors();
     try {
       const response = await loginUser(data);
+      console.log('response', response)
       // Optionally, do additional checks on response data if needed
       if (response?.error) {
         // In case the API returns a custom error

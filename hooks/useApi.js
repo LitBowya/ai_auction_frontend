@@ -13,6 +13,7 @@ const useApi = (endpoint, method = "GET", requestData = null) => {
     setLoading(true);
     setError(null);
     try {
+      // No need to add withCredentials here since it's already in the api instance
       const response = await api.get(endpoint);
       setData(response.data);
     } catch (err) {
@@ -32,7 +33,10 @@ const useApi = (endpoint, method = "GET", requestData = null) => {
         method: customMethod,
         url: endpoint,
         data,
+        
       });
+
+      console.log('Response', response)
 
       // ✅ Ensure response is valid JSON
       if (!response || !response.data) {

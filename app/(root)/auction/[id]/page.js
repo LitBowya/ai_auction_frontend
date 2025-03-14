@@ -7,7 +7,9 @@ import BidForm from "./BidForm";
 // ✅ Fetch auction details (Server Component)
 async function fetchAuction(id) {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auction/${id}`);
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auction/${id}`, {
+      next: { revalidate: 3600 },
+    });
     if (!res.ok) {
       console.error("Fetch response not OK, status:", res.status);
       return null;
@@ -32,7 +34,7 @@ export default async function AuctionDetail(props) {
   
   const id = params.id;
   
-  const auction = await fetchAuction(id);
+  const {auction} = await fetchAuction(id);
   
   if (!auction) {
     console.error("Auction not found for id:", id);
