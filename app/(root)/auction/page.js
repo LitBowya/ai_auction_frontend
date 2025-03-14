@@ -1,7 +1,7 @@
 import AuctionCard from "@/components/AuctionCard";
 
 // // Add revalidation or dynamic rendering to avoid build-time errors
-// export const dynamic = 'force-dynamic'; // Skip static pre-rendering
+export const dynamic = 'force-dynamic'; // Skip static pre-rendering
 
 // Fetch auctions from the API with proper error handling
 async function fetchAuctions() {
@@ -28,7 +28,7 @@ async function fetchAuctions() {
 
 export default async function AuctionPage() {
   // Safely get auctions, defaulting to empty array
-  const {auctions} = await fetchAuctions() || [];
+  const auctions = await fetchAuctions() || [];
 
   console.log(auctions)
 
