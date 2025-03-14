@@ -80,10 +80,10 @@ export default async function AuctionDetail(props) {
       </div>
   
       {/* Bid Form & History */}
-      <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
+      {/* <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
         <BidForm auctionId={auction._id} highestBid={auction.highestBid || auction.startingPrice} />
         <BidHistory auctionId={auction._id} />
-      </div>
+      </div> */}
     </main>
   );
 }
