@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
+  --background: #a3a3a366;
   --foreground: #171717;
 }
 
@@ -25,8 +25,29 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-.max_width{
+.max_width {
   max-width: 1440px;
   padding-inline: 5rem;
   margin-inline: auto;
+}
+
+/* Reduce padding for medium screens (Tablets & Small Laptops) */
+@media (max-width: 1024px) {
+  .max_width {
+    padding-inline: 3rem;
+  }
+}
+
+/* Reduce padding further for small screens (Mobile Devices) */
+@media (max-width: 768px) {
+  .max_width {
+    padding-inline: 1.5rem;
+  }
+}
+
+/* Minimal padding for very small screens (Phones) */
+@media (max-width: 480px) {
+  .max_width {
+    padding-inline: 1rem;
+  }
 }

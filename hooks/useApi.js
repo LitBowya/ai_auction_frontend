@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import {useCallback, useEffect, useState} from "react";
 import api from "../utils/api";
 
 const useApi = (endpoint, method = "GET", requestData = null) => {
@@ -13,11 +13,10 @@ const useApi = (endpoint, method = "GET", requestData = null) => {
     setLoading(true);
     setError(null);
     try {
-      // No need to add withCredentials here since it's already in the api instance
       const response = await api.get(endpoint);
       setData(response.data);
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "An error occurred while fetching data.");
     } finally {
       setLoading(false);
     }
@@ -29,24 +28,30 @@ const useApi = (endpoint, method = "GET", requestData = null) => {
     setError(null);
 
     try {
+      // Log the request payload for debugging
+      console.log("Request Payload:", { method: customMethod, url: endpoint, data });
+
       const response = await api({
         method: customMethod,
         url: endpoint,
-        data,
-        
+        data: data || undefined, // Avoid sending null or undefined
       });
 
-      console.log('Response', response)
+      // Log the response for debugging
+      console.log("Response Data:", response.data);
 
-      // ✅ Ensure response is valid JSON
+      // Ensure response is valid JSON
       if (!response || !response.data) {
-        return { success: false, message: "No response from server" };
+        throw new Error("No response from server");
       }
 
       setData(response.data);
       return response.data;
     } catch (err) {
-      setError(err.message);
+      // Log the error for debugging
+      console.error("API Error:", err);
+
+      setError(err.message || "An error occurred while sending the request.");
       throw err;
     } finally {
       setLoading(false);

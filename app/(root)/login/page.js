@@ -1,51 +1,63 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { useState } from "react";
 import { toast } from "sonner";
 import useApi from "@/hooks/useApi";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
 import { useDispatch } from "react-redux";
 import { login } from "@/store/slices/authSlice";
 
 const LoginPage = () => {
   const dispatch = useDispatch();
-  const { register, handleSubmit, setError, clearErrors } = useForm();
-  const { sendRequest: loginUser, loading } = useApi("/auth/login", "POST");
   const router = useRouter();
+  const { sendRequest: loginUser, loading } = useApi("/auth/login", "POST");
 
-  const onSubmit = async (data) => {
-    // Clear any previous errors from react-hook-form
-    clearErrors();
+  // State for form fields
+  const [formData, setFormData] = useState({
+  email: "",
+    password: "",
+  });
+
+  const [error, setError] = useState(null);
+
+  // Handle input changes
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setError(null); // Clear error when user starts typing
+  };
+
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault(); // Prevent page refresh
+    setError(null); // Clear previous error
+
+    if (!formData.email || !formData.password) {
+      setError("Email and password are required.");
+      toast.error("Email and password are required.");
+      return;
+    }
+
     try {
-      const response = await loginUser(data);
-      console.log('response', response)
-      // Optionally, do additional checks on response data if needed
+      const response = await loginUser(formData);
+
       if (response?.error) {
-        // In case the API returns a custom error
-        setError("apiError", { message: response.error });
+        setError(response.error);
         toast.error(response.error);
-      } else {
-        dispatch(login(response.user))
-        toast.success("Login successful!");
-        router.push("/"); // Redirect after login
+        return;
       }
+
+      dispatch(login(response.user));
+      toast.success("Login successful!");
+      router.push("/");
+
     } catch (error) {
-      // Determine error message from the error object
       let errorMessage = "Invalid email or password!";
-      if (
-        error.response &&
-        error.response.data &&
-        error.response.data.message
-      ) {
+      if (error.response?.data?.message) {
         errorMessage = error.response.data.message;
-      } else if (error.message) {
-        errorMessage = error.message;
       }
-      // Set error with react-hook-form (optional)
-      setError("apiError", { message: errorMessage });
+      setError(errorMessage);
       toast.error(errorMessage);
       console.error("Login error:", error);
     }
@@ -65,17 +77,21 @@ const LoginPage = () => {
         </div>
         <div className="p-6">
           <h2 className="text-2xl font-bold text-center mb-6">Login</h2>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <input
-              {...register("email", { required: "Email is required" })}
               type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
               placeholder="Email"
               className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
               required
             />
             <input
-              {...register("password", { required: "Password is required" })}
               type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
               placeholder="Password"
               className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
               required

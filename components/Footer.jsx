@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { FaFacebook, FaTwitter, FaInstagram } from "react-icons/fa";
+import {FaFacebook, FaInstagram, FaTwitter} from "react-icons/fa";
 
 export default function Footer() {
   return (
@@ -9,7 +9,7 @@ export default function Footer() {
         {/* Column 1: About */}
         <div className="flex flex-col gap-3">
           <h3 className="text-lg font-bold mb-3">About ArtBid</h3>
-          <Image src={'/artbid.png'} width={100} height={50} alt="Logo" />
+          <Image src={'/artbid.png'} width={100} height={50} alt="Logo" className="w-[100px] h-[50px]"/>
           <p className="text-gray-400">
             ArtBid is an online auction platform where artists and collectors can buy and sell artworks securely.
           </p>
@@ -19,7 +19,7 @@ export default function Footer() {
         <div>
           <h3 className="text-lg font-bold mb-3">Quick Links</h3>
           <ul className="space-y-2">
-            <li><Link href="/artwork" className="text-gray-400 hover:text-white">Art Works</Link></li>
+            <li><Link href="/about" className="text-gray-400 hover:text-white"> About Us</Link></li>
             <li><Link href="/auction" className="text-gray-400 hover:text-white">Auctions</Link></li>
             <li><Link href="/register" className="text-gray-400 hover:text-white">Register</Link></li>
             
