@@ -8,8 +8,16 @@ export default function Sidebar({ isOpen }) {
     // Define the sidebar links
     const links = [
         { href: '/dashboard', label: 'Dashboard' },
-        { href: '/settings', label: 'Settings' },
+        { href: '/auctions', label: 'Auctions' },
+        { href: '/artworks', label: 'Artworks' },
+        { href: '/bids', label: 'Bids' },
+        { href: '/payments', label: 'Payments' },
+        { href: '/categories', label: 'Categories' },
+        { href: '/orders', label: 'Orders' },
         { href: '/users', label: 'Users' },
+        { href: '/audits', label: 'Audits' },
+        { href: '/settings', label: 'Settings' },
+
     ];
 
     return (
@@ -24,9 +32,9 @@ export default function Sidebar({ isOpen }) {
                         <li key={link.href}>
                             <Link
                                 href={link.href}
-                                className={`block px-4 py-2 rounded hover:bg-gray-200 ${
+                                className={`block px-4 py-2 font-semibold rounded hover:bg-gray-200 ${
                                     pathname === link.href
-                                        ? 'bg-blue-500 text-white' // Active link styles
+                                        ? 'bg-blue-500 text-white font-bold' // Active link styles
                                         : 'text-gray-700' // Default link styles
                                 }`}
                             >

@@ -1,9 +1,9 @@
 "use client";
 
-import {useCallback, useEffect, useState} from "react";
+import { useCallback, useEffect, useState } from "react";
 import api from "../utils/api";
 
-const useApi = (endpoint, method = "GET", requestData = null) => {
+const useApi = (endpoint = "", method = "GET", requestData = null) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -23,17 +23,17 @@ const useApi = (endpoint, method = "GET", requestData = null) => {
   }, [endpoint]);
 
   // Handle POST, PUT, DELETE actions
-  const sendRequest = async (data = requestData, customMethod = method) => {
+  const sendRequest = async (dynamicEndpoint, data = requestData, customMethod = method) => {
     setLoading(true);
     setError(null);
 
     try {
       // Log the request payload for debugging
-      console.log("Request Payload:", { method: customMethod, url: endpoint, data });
+      console.log("Request Payload:", { method: customMethod, url: dynamicEndpoint, data });
 
       const response = await api({
         method: customMethod,
-        url: endpoint,
+        url: dynamicEndpoint, // Use dynamic endpoint here
         data: data || undefined, // Avoid sending null or undefined
       });
 

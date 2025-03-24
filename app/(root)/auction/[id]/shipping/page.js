@@ -22,19 +22,19 @@ export default function AddShippingDetails({ params }) {
 
     // Use the useApi hook for saving shipping details
     const { sendRequest: saveShipping, loading: savingShipping, error: shippingError } = useApi(
-        `${process.env.NEXT_PUBLIC_API_URL}/shipping`,
+        `/shipping`,
         "POST"
     );
 
     // Use the useApi hook for initiating payment
     const { sendRequest: initiatePayment, loading: initiatingPayment, error: paymentError } = useApi(
-        `${process.env.NEXT_PUBLIC_API_URL}/payments/${id}/pay`,
+        `/payments/${id}/pay`,
         "POST"
     );
 
     // Use the useApi hook for fetching default shipping details
     const { sendRequest: fetchDefaultShipping, loading: fetchingShipping, error: fetchError } = useApi(
-        `${process.env.NEXT_PUBLIC_API_URL}/shipping/`,
+        `/shipping/`,
         "GET"
     );
 

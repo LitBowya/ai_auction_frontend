@@ -1,10 +1,10 @@
 "use client"; // Required for GSAP and ScrollTrigger
 
-import React, { useRef } from "react";
+import React, {useRef} from "react";
 import Image from "next/image";
 import gsap from "gsap";
-import { useGSAP } from "@gsap/react";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import {useGSAP} from "@gsap/react";
+import {ScrollTrigger} from "gsap/ScrollTrigger";
 import HeaderTitle from "@/components/HeaderTitle";
 
 // Register ScrollTrigger plugin
@@ -79,6 +79,7 @@ const AboutSection = () => {
       className="relative py-20 px-4 bg-gray-100 overflow-hidden"
     >
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+
         {/* Left Side: About Us Content */}
         <div ref={contentRef} className="space-y-6">
           

@@ -8,7 +8,7 @@ import React, {useState} from "react";
 import {logout} from "@/store/slices/authSlice";
 import Button from "./Button";
 import Image from "next/image";
-import {FaBars, FaTimes} from "react-icons/fa"; // Import icons from react-icons
+import {FaBars, FaTimes, FaUser} from "react-icons/fa"; // Import icons from react-icons
 
 export default function Navbar() {
   const user = useSelector((state) => state.auth.user);
@@ -119,6 +119,11 @@ export default function Navbar() {
                   <>Null</>
                 )}
               </Link>
+              {user?.isAdmin && (
+                  <Link className={`text-white`} href={`/dashboard`}>
+                    <FaUser className={`text-2xl`}/>
+                  </Link>
+              )}
             </>
           ) : (
             <Link href="/login">
@@ -170,6 +175,8 @@ export default function Navbar() {
           </div>
         </div>
       )}
+
+
     </nav>
   );
 }
