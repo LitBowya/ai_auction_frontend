@@ -12,11 +12,11 @@ import { login } from "@/store/slices/authSlice";
 const LoginPage = () => {
   const dispatch = useDispatch();
   const router = useRouter();
-  const { sendRequest: loginUser, loading } = useApi("/auth/login", "POST");
+  const { postData: loginUser, loading } = useApi("/auth/login");
 
   // State for form fields
   const [formData, setFormData] = useState({
-  email: "",
+    email: "",
     password: "",
   });
 

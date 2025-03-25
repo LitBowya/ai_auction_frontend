@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import useApi from "@/hooks/useApi";
 import Spinner from "@/components/Spinner";
 import Error from "@/components/Error";
@@ -8,37 +8,66 @@ import PaymentInsights from "./PaymentInsights";
 import PaymentTable from "./PaymentTable";
 
 export default function Payment() {
-  // Fetch total number of payments and earnings
-  const {
-    data: summaryData,
-    loading: summaryLoading,
+  // Using the new useApi hook with automatic GET request
+  const { 
+    data: summaryData, 
+    loading: summaryLoading, 
     error: summaryError,
-    refetch
-  } = useApi("/payments", "GET");
+    fetchData: fetchPayments 
+  } = useApi("/payments");
 
-  console.log(summaryData);
-
-  // Handle loading and error states
+  // Handle loading state
   if (summaryLoading) {
-    return <Spinner />
+    return (
+      <div className="max-w-screen-xl mx-auto p-8 flex justify-center items-center">
+        <Spinner />
+      </div>
+    );
   }
 
+  // Handle error state with retry option
   if (summaryError) {
-    return <Error />
+    return (
+      <div className="max-w-screen-xl mx-auto p-8 flex flex-col justify-center items-center">
+        <Error 
+          message={summaryError.message || "Failed to load payment data"}
+          onRetry={fetchPayments}
+        />
+      </div>
+    );
   }
 
-  if(!summaryData){
-    return <Error />
+  // Handle empty data state
+  if (!summaryData?.payments) {
+    return (
+      <div className="max-w-screen-xl mx-auto p-8 flex flex-col justify-center items-center">
+        <p className="text-gray-500 text-lg mb-4">
+          No payment data available
+        </p>
+        <button
+          onClick={fetchPayments}
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+        >
+          Retry
+        </button>
+      </div>
+    );
   }
 
   return (
-    <div className="max_width">
-      <h1 className="text-2xl font-bold mb-2">Payment Monitoring</h1>
-      <PaymentInsights data={summaryData.payments} />
-      <PaymentTable
-        payments={summaryData.payments || []}
-        refetch={refetch}
-      />
+    <div className="max-w-screen-xl mx-auto p-8">
+      <h1 className="text-2xl font-bold mb-6">Payment Monitoring</h1>
+      
+      <div className="mb-8">
+        <PaymentInsights data={summaryData.payments} />
+      </div>
+
+      <div className="bg-white p-6 rounded-lg shadow">
+        <PaymentTable 
+          payments={summaryData.payments} 
+          refetch={fetchPayments} 
+        />
+      </div>
     </div>
-  )
+  );
 }

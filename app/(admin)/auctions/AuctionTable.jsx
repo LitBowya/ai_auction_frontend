@@ -1,15 +1,21 @@
+"use client";
+
 import React from "react";
 import useApi from "@/hooks/useApi";
 import { FaStop, FaTrash } from "react-icons/fa";
 
 const AuctionTable = ({ auctions, pagination, refetch }) => {
-  const { sendRequest: endAuction } = useApi(`/auctions/:id/end`, "POST");
-  const { sendRequest: deleteAuction } = useApi(`/auctions/:id`, "DELETE");
+  // Using specific methods from the new hook
+  const { postData: endAuction, loading: endingAuction } = useApi("/auctions");
+  const { deleteData: deleteAuction, loading: deletingAuction } = useApi("/auctions");
 
   const handleEndAuction = async (id) => {
     try {
-      await endAuction(null, "POST", null, { id }); // Pass ID as a parameter
-      refetch(); // Refresh data after ending auction
+      await endAuction(null, { 
+        params: { id },
+        endpoint: `${id}/end` 
+      });
+      refetch();
     } catch (error) {
       console.error("Error ending auction:", error.message);
     }
@@ -17,8 +23,8 @@ const AuctionTable = ({ auctions, pagination, refetch }) => {
 
   const handleDeleteAuction = async (id) => {
     try {
-      await deleteAuction(null, "DELETE", null, { id }); // Pass ID as a parameter
-      refetch(); // Refresh data after deleting auction
+      await deleteAuction({id:id});
+      refetch();
     } catch (error) {
       console.error("Error deleting auction:", error.message);
     }
@@ -63,14 +69,16 @@ const AuctionTable = ({ auctions, pagination, refetch }) => {
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3">
                 <button
                   onClick={() => handleEndAuction(auction._id)}
-                  className="text-red-500 text-lg cursor-pointer hover:text-red-700"
+                  disabled={endingAuction}
+                  className="text-red-500 text-lg cursor-pointer hover:text-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <FaStop />
                 </button>
 
                 <button
                   onClick={() => handleDeleteAuction(auction._id)}
-                  className="text-red-500 text-lg cursor-pointer hover:text-red-700"
+                  disabled={deletingAuction}
+                  className="text-red-500 text-lg cursor-pointer hover:text-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <FaTrash />
                 </button>
@@ -84,7 +92,7 @@ const AuctionTable = ({ auctions, pagination, refetch }) => {
       <div className="flex justify-between items-center p-4 bg-gray-50">
         <button
           disabled={pagination.currentPage === 1}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-300"
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
         >
           Previous
         </button>
@@ -93,7 +101,7 @@ const AuctionTable = ({ auctions, pagination, refetch }) => {
         </span>
         <button
           disabled={pagination.currentPage === pagination.totalPages}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-300"
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
         >
           Next
         </button>

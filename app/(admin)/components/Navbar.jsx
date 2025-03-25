@@ -1,4 +1,7 @@
 'use client';
+import Link from "next/link";
+import Button from "@/components/Button";
+import { FaHome } from "react-icons/fa";
 
 export default function Navbar({ onMenuClick }) {
     return (
@@ -10,6 +13,7 @@ export default function Navbar({ onMenuClick }) {
                 ☰ Menu
             </button>
             <h1 className="text-xl font-bold">Admin Dashboard</h1>
+            
         </nav>
     );
 }

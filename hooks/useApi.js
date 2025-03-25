@@ -1,19 +1,32 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import api from "../utils/api";
 
-const useApi = (endpoint = "", method = "GET", requestData = null) => {
+const useApi = (endpoint = "") => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Fetch data (GET request)
-  const fetchData = useCallback(async () => {
+  const getContentType = (payload) => {
+    if (payload instanceof FormData) {
+      return undefined; // Let browser set multipart/form-data with boundary
+    }
+    return payload ? "application/json" : undefined;
+  };
+
+  const fetchData = useCallback(async (id = "") => {
     setLoading(true);
     setError(null);
     try {
-      const response = await api.get(endpoint);
+      // Dynamically build the endpoint based on whether an ID is provided or not
+      const url = id ? `${endpoint}/${id.id}` : endpoint;
+
+
+      console.log(url)
+      console.log(id)
+      // Make GET request with the updated URL
+      const response = await api.get(url); 
       setData(response.data);
     } catch (err) {
       setError(err.message || "An error occurred while fetching data.");
@@ -22,52 +35,102 @@ const useApi = (endpoint = "", method = "GET", requestData = null) => {
     }
   }, [endpoint]);
 
-  // Handle POST, PUT, DELETE actions
-  const sendRequest = async (dynamicEndpoint, data = requestData, customMethod = method) => {
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      fetchData(); // You can pass the ID here if needed
+    }
+  }, [fetchData]);
+
+  const postData = async (payload = null, id = "") => {
     setLoading(true);
     setError(null);
-
     try {
-      // Log the request payload for debugging
-      console.log("Request Payload:", { method: customMethod, url: dynamicEndpoint, data });
+      // Dynamically build the endpoint based on whether an ID is provided or not
+      const url = id ? `${endpoint}/${id.id}` : endpoint;
 
-      const response = await api({
-        method: customMethod,
-        url: dynamicEndpoint, // Use dynamic endpoint here
-        data: data || undefined, // Avoid sending null or undefined
+
+      console.log(url)
+      console.log(id)
+
+      // Make POST request with the updated URL
+      const response = await api.post(url, payload, {
+        headers: {
+          "Content-Type": getContentType(payload),
+        },
       });
-
-      // Log the response for debugging
-      console.log("Response Data:", response.data);
-
-      // Ensure response is valid JSON
-      if (!response || !response.data) {
-        throw new Error("No response from server");
-      }
-
       setData(response.data);
       return response.data;
     } catch (err) {
-      // Log the error for debugging
-      console.error("API Error:", err);
-
-      setError(err.message || "An error occurred while sending the request.");
+      setError(err.message || "An error occurred while posting data.");
       throw err;
     } finally {
       setLoading(false);
     }
   };
 
-  // Refetch function to refresh data
-  const refetch = async () => {
-    await fetchData();
+  const putData = async (payload = null, id = "") => {
+    setLoading(true);
+    setError(null);
+    try {
+      // Dynamically build the endpoint based on whether an ID is provided or not
+      const url = id ? `${endpoint}/${id.id}` : endpoint;
+
+
+      console.log(url)
+      console.log(id)
+      // Make PUT request with the updated URL
+      const response = await api.put(url, payload, {
+        headers: {
+          "Content-Type": getContentType(payload),
+        },
+      });
+      setData(response.data);
+      return response.data;
+    } catch (err) {
+      setError(err.message || "An error occurred while updating data.");
+      throw err;
+    } finally {
+      setLoading(false);
+    }
   };
 
-  useEffect(() => {
-    if (typeof window !== "undefined" && method === "GET") fetchData();
-  }, [fetchData, method]);
+  const deleteData = async (id = "") => {
+    setLoading(true);
+    setError(null);
+    try {
+      // Dynamically build the endpoint based on whether an ID is provided or not
+      const url = id ? `${endpoint}/${id.id}` : endpoint;
 
-  return { data, loading, error, sendRequest, refetch };
+      console.log(url)
+      console.log(id)
+
+
+      // Make DELETE request with the updated URL
+      const response = await api.delete(url);
+      setData(response.data);
+      return response.data;
+    } catch (err) {
+      setError(err.message || "An error occurred while deleting data.");
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const refetch = useCallback(() => {
+    fetchData();
+  }, [fetchData]);
+
+  return {
+    data,
+    loading,
+    error,
+    fetchData,
+    postData,
+    putData,
+    deleteData,
+    refetch,
+  };
 };
 
 export default useApi;

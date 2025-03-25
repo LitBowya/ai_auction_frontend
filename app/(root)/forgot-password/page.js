@@ -43,7 +43,7 @@ const ForgotPasswordPage = () => {
 
   const handleRequestOtp = async (data) => {
     try {
-      await requestOtp(data);
+      await requestOtp(`/auth/forgot-password`, data);
       toast.success("OTP sent to email!");
       setEmail(data.email);
       setIsModalOpen(true);
@@ -56,7 +56,7 @@ const ForgotPasswordPage = () => {
 
   const handleResetPassword = async () => {
     try {
-      await resetPassword({ email, otp, newPassword });
+      await resetPassword(`/auth/reset-password`,{ email, otp, newPassword });
       setIsModalOpen(false);
       toast.success("Password reset successful! Redirecting to login...");
       router.push("/login");

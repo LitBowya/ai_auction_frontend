@@ -12,60 +12,98 @@ import CreateAuctionModal from "./CreateAuctionModal";
 
 export default function Auctions() {
   const [statusFilter, setStatusFilter] = useState("all"); // 'all', 'upcoming', 'active', 'completed'
-  const [isModalOpen, setIsModalOpen] = useState(false); // State to control modal visibility
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Fetch summary data for cards
-  const {
-    data: summaryData,
-    loading: summaryLoading,
+  // Fetch summary data using new hook
+  const { 
+    data: summaryData, 
+    loading: summaryLoading, 
     error: summaryError,
-  } = useApi("/auction/insights", "GET");
+    fetchData: fetchSummaryData
+  } = useApi("/auctions/insights");
 
-  // Fetch all auctions with pagination and status filter
-  const { data, loading, error, refetch } = useApi(
-    `/auction/all?page=1&status=${statusFilter}`,
-    "GET"
-  );
+  // Fetch auctions data with new hook
+  const { 
+    data, 
+    loading, 
+    error, 
+    fetchData: fetchAuctions 
+  } = useApi(`/auctions/all?page=1&status=${statusFilter}`);
 
-  // Handle modal open/close
   const handleOpenModal = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
 
-  // Handle loading and error states
+  // Handle loading state
   if (loading || summaryLoading) {
-    return <Spinner />;
+    return (
+      <div className="max-w-screen-xl mx-auto p-8 bg-gray-100 flex justify-center items-center">
+        <Spinner />
+      </div>
+    );
   }
 
+  // Handle error state with retry option
   if (error || summaryError) {
-    return <Error />;
+    return (
+      <div className="max-w-screen-xl mx-auto p-8 bg-gray-100 flex flex-col justify-center items-center">
+        <Error 
+          message={error?.message || summaryError?.message || "Failed to load auction data"}
+          onRetry={() => {
+            if (error) fetchAuctions();
+            if (summaryError) fetchSummaryData();
+          }}
+        />
+      </div>
+    );
   }
 
+  // Handle empty data state
   if (!data || !summaryData) {
-    return <Error />;
+    return (
+      <div className="max-w-screen-xl mx-auto p-8 bg-gray-100 flex flex-col justify-center items-center">
+        <p className="text-red-500 text-lg font-semibold mb-4">
+          No auction data available
+        </p>
+        <Button
+          variant="primary"
+          text="Retry"
+          onClick={() => {
+            fetchSummaryData();
+            fetchAuctions();
+          }}
+        />
+      </div>
+    );
   }
 
   return (
-    <div className="max_width">
-      <h1 className="text-2xl font-bold mb-2">Auction Monitoring</h1>
-      <AuctionInsights data={summaryData} />
-      <div className={`justify-end flex items-center`}>
-        {/* Create Auction Button */}
+    <div className="max-w-screen-xl mx-auto p-8 bg-gray-100">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Auction Monitoring</h1>
         <Button
-          variant={`primary`}
-          text={`Create Auction`}
+          variant="primary"
+          text="Create Auction"
           onClick={handleOpenModal}
           icon={<FaPlus />}
         />
       </div>
-      <AuctionTable
-        auctions={data?.data || []}
-        pagination={data?.pagination || 1}
-        refetch={refetch}
-      />
+
+      <div className="mb-8">
+        <AuctionInsights data={summaryData} />
+      </div>
+
+      <div className="bg-white p-6 rounded-lg shadow">
+        <AuctionTable
+          auctions={data?.data || []}
+          pagination={data?.pagination || 1}
+          refetch={fetchAuctions}
+        />
+      </div>
+
       <CreateAuctionModal
         isOpen={isModalOpen}
         onRequestClose={handleCloseModal}
-        refetch={refetch}
+        refetch={fetchAuctions}
       />
     </div>
   );

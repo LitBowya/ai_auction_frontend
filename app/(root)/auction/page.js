@@ -11,12 +11,12 @@ export default async function AuctionPage({ searchParams }) {
 
     // Fetch active, upcoming, and past auctions separately
     const [activeRes, upcomingRes, pastRes] = await Promise.all([
-        fetch(`${API_URL}/auction/all?page=${activePage}&limit=6&status=active`, { next: { revalidate: 5 } }),
-        fetch(`${API_URL}/auction/all?page=${upcomingPage}&limit=6&status=upcoming`, { next: { revalidate: 5 } }),
-        fetch(`${API_URL}/auction/all?page=${pastPage}&limit=6&status=past`, { next: { revalidate: 5 } }),
+        fetch(`${API_URL}/auctions/all?page=${activePage}&limit=6&status=active`, { next: { revalidate: 1 } }),
+        fetch(`${API_URL}/auctions/all?page=${upcomingPage}&limit=6&status=upcoming`, { next: { revalidate: 1 } }),
+        fetch(`${API_URL}/auctions/all?page=${pastPage}&limit=6&status=past`, { next: { revalidate: 1 } }),
     ]);
 
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auction/all`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auctions/all`, {
         next: { revalidate: 1 }, // Ensures fresh data
     });
 
@@ -34,7 +34,7 @@ export default async function AuctionPage({ searchParams }) {
     // Latest auctions (most recent 4)
     const latestAuctions = allAuctions
         .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-        .slice(0, 4);
+        .slice(0, 3);
 
     // Handle errors
     if (!activeRes.ok || !upcomingRes.ok || !pastRes.ok) {

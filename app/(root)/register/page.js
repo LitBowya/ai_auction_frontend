@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { toast } from "sonner";
 import ReactModal from "react-modal";
 import useApi from "@/hooks/useApi";
@@ -12,16 +12,35 @@ ReactModal.setAppElement("body");
 
 const RegisterPage = () => {
   const router = useRouter();
-  const { sendRequest: registerUser, loading: registerLoading } = useApi("/auth/register", "POST");
-  const { sendRequest: verifyOtp, loading: verifyLoading } = useApi("/auth/verify-otp", "POST");
+  const { postData: registerUser, loading: registerLoading } = useApi("/auth/register");
+  const { postData: verifyOtp, loading: verifyLoading } = useApi("/auth/verify-otp");
 
-  const [formData, setFormData] = useState({ name: "", email: "", password: "", phone: "", address: "" });
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    phone: "",
+    address: "",
+  });
+  const [profileImage, setProfileImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
+  const fileInputRef = useRef(null);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setProfileImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => setImagePreview(reader.result);
+      reader.readAsDataURL(file);
+    }
   };
 
   const parseError = (error) => {
@@ -31,11 +50,24 @@ const RegisterPage = () => {
   const onSubmit = async (e) => {
     e.preventDefault();
     try {
-      await registerUser(formData);
+      const formDataToSend = new FormData();
+      
+      for (const key in formData) {
+        formDataToSend.append(key, formData[key]);
+      }
+      if (profileImage instanceof File) {
+        formDataToSend.append("profileImage", profileImage);
+      }
+
+      await registerUser(formDataToSend);
+
       toast.success("OTP sent to email!");
       setEmail(formData.email);
       setIsModalOpen(true);
       setFormData({ name: "", email: "", password: "", phone: "", address: "" });
+      setProfileImage(null);
+      setImagePreview(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
     } catch (error) {
       toast.error(parseError(error));
       console.error("Registration error:", error);
@@ -58,7 +90,13 @@ const RegisterPage = () => {
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
       <div className="bg-white rounded-lg shadow-2xl overflow-hidden w-full max-w-md">
         <div className="relative">
-          <Image src="/artbid.png" alt="Register" width={400} height={200} className="w-full h-48 object-contain" />
+          <Image
+            src="/artbid.png"
+            alt="Register"
+            width={400}
+            height={200}
+            className="w-full h-48 object-contain"
+          />
         </div>
         <div className="p-6">
           <h2 className="text-2xl font-bold text-center mb-6">Register</h2>
@@ -75,6 +113,32 @@ const RegisterPage = () => {
                 required
               />
             ))}
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Upload Profile
+              </label>
+              <input
+                type="file"
+                name="profileImage"
+                accept="image/*"
+                onChange={handleImageChange}
+                ref={fileInputRef}
+                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              {imagePreview && (
+                <div className="mt-2">
+                  <Image
+                    src={imagePreview}
+                    alt="Profile preview"
+                    width={100}
+                    height={100}
+                    className="rounded-full w-20 h-20 object-cover"
+                  />
+                </div>
+              )}
+            </div>
+
             <button
               type="submit"
               className="w-full py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded shadow-md transition-colors duration-200"
@@ -84,17 +148,19 @@ const RegisterPage = () => {
             </button>
           </form>
           <p className="mt-6 text-center text-sm">
-            Already have an account? <Link className="text-blue-500 hover:underline font-medium" href="/login">Login here</Link>
+            Already have an account?{" "}
+            <Link className="text-blue-500 hover:underline font-medium" href="/login">
+              Login here
+            </Link>
           </p>
         </div>
       </div>
 
-      {/* OTP Modal */}
       <ReactModal
         isOpen={isModalOpen}
         onRequestClose={() => setIsModalOpen(false)}
         className="bg-white p-6 rounded-lg shadow-xl max-w-sm mx-auto mt-20 outline-none"
-        overlayClassName="fixed inset-0 bg-gray-100 bg-opacity-10 flex items-center justify-center"
+        overlayClassName="fixed inset-0 bg-black/50 bg-opacity-10 flex items-center justify-center"
       >
         <h2 className="text-xl font-semibold mb-4">Enter OTP</h2>
         <input

@@ -1,6 +1,9 @@
+"use client";
+
 import React, { useState } from "react";
 import ReactModal from "react-modal";
 import useApi from "@/hooks/useApi";
+import { toast } from "sonner";
 
 ReactModal.setAppElement("body");
 
@@ -10,11 +13,19 @@ const CreateArtworkModal = ({ isOpen, onRequestClose, refetch }) => {
     description: "",
     category: "",
   });
-  const [files, setFiles] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [images, setImages] = useState([]);
   const [error, setError] = useState("");
+  const [aiRejectionReasons, setAiRejectionReasons] = useState([]);
 
-  const { sendRequest } = useApi("/artworks", "POST");
+  // Using new hook methods
+  const { postData: createArtwork, loading: creatingArtwork } =
+    useApi("/artworks");
+  const {
+    data: categories,
+    loading: categoriesLoading,
+    error: categoriesError,
+    fetchData: fetchCategories,
+  } = useApi("/category");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -22,35 +33,64 @@ const CreateArtworkModal = ({ isOpen, onRequestClose, refetch }) => {
   };
 
   const handleFileChange = (e) => {
-    setFiles(Array.from(e.target.files));
+    setImages(Array.from(e.target.files));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+    setAiRejectionReasons([]); // Reset AI reasons on new submission
+
+    if (!formData.category) {
+      setError("Please select a category");
+      return;
+    }
+
+    if (images.length === 0) {
+      setError("Please upload at least one image");
+      return;
+    }
+
     try {
-      setLoading(true);
-      setError("");
+      toast.warning("Uploading artwork...");
 
       const formDataToSend = new FormData();
       formDataToSend.append("title", formData.title);
       formDataToSend.append("description", formData.description);
       formDataToSend.append("category", formData.category);
 
-      files.forEach((file) => {
-        formDataToSend.append("files", file);
+      images.forEach((file) => {
+        formDataToSend.append("images", file);
       });
 
-      await sendRequest(formDataToSend);
+      const response = await createArtwork(formDataToSend);
 
-      onRequestClose(); // Close the modal
-      setFormData({ title: "", description: "", category: "" }); // Reset form
-      setFiles([]); // Clear files
-      refetch(); // Refresh artwork list
+      resetForm();
+      onRequestClose();
+      refetch();
+      toast.success("Artwork uploaded successfully");
     } catch (err) {
-      setError(err.message || "An error occurred while uploading the artwork.");
-    } finally {
-      setLoading(false);
+      // Handle AI rejection specifically
+      if (err.response?.data?.error?.type === "AI_DETECTION") {
+        setAiRejectionReasons(err.response.data.error.reasons);
+        toast.error("AI-generated images are not allowed", {
+          description: `Your artwork was rejected for the following reasons: ${err.response.data.error.reasons}`,
+          duration: 10000, // Longer duration for user to read
+        });
+      } else {
+        const errorMsg =
+          err.response?.data?.message ||
+          err.message ||
+          "Failed to upload artwork";
+        setError(errorMsg);
+        toast.error(errorMsg);
+      }
     }
+  };
+
+  const resetForm = () => {
+    setFormData({ title: "", description: "", category: "" });
+    setImages([]);
   };
 
   return (
@@ -58,17 +98,20 @@ const CreateArtworkModal = ({ isOpen, onRequestClose, refetch }) => {
       isOpen={isOpen}
       onRequestClose={onRequestClose}
       contentLabel="Create Artwork Modal"
-      className="bg-white p-6 rounded-lg shadow-xl mx-auto mt-20 outline-none"
+      className="bg-white p-6 rounded-lg shadow-xl mx-auto mt-20 outline-none max-w-md w-full"
       overlayClassName="fixed inset-0 bg-black/50 flex items-center justify-center"
     >
-      <div className="bg-white rounded-lg shadow-lg p-6 w-full min-w-md">
+      <div className="bg-white rounded-lg shadow-lg p-6">
         <h2 className="text-xl font-bold text-gray-700 mb-4">Add Artwork</h2>
 
         {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+        {categoriesError && (
+          <p className="text-red-500 text-sm mb-4">Failed to load categories</p>
+        )}
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="space-y-4">
           {/* Title */}
-          <div className="mb-4">
+          <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Title
             </label>
@@ -78,11 +121,12 @@ const CreateArtworkModal = ({ isOpen, onRequestClose, refetch }) => {
               value={formData.title}
               onChange={handleChange}
               className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
             />
           </div>
 
           {/* Description */}
-          <div className="mb-4">
+          <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Description
             </label>
@@ -92,43 +136,58 @@ const CreateArtworkModal = ({ isOpen, onRequestClose, refetch }) => {
               onChange={handleChange}
               rows="3"
               className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
             />
           </div>
 
           {/* Category */}
-          <div className="mb-4">
+          <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Category
             </label>
-            <input
-              type="text"
-              name="category"
-              value={formData.category}
-              onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+            {categoriesLoading ? (
+              <p className="text-gray-500">Loading categories...</p>
+            ) : (
+              <select
+                name="category"
+                value={formData.category}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              >
+                <option value="">Select a category</option>
+                {categories?.categories?.map((category) => (
+                  <option key={category._id} value={category._id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
 
           {/* Images */}
-          <div className="mb-4">
+          <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Upload Images
+              Upload Images (Multiple allowed)
             </label>
             <input
               type="file"
+              name="images"
               multiple
+              accept="image/*"
               onChange={handleFileChange}
               className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
             />
           </div>
 
           {/* Submit Button */}
           <button
             type="submit"
-            disabled={loading}
-            className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition disabled:bg-gray-300"
+            disabled={creatingArtwork}
+            className="w-full px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition disabled:bg-blue-300 disabled:cursor-not-allowed"
           >
-            {loading ? "Uploading..." : "Add Artwork"}
+            {creatingArtwork ? "Uploading..." : "Add Artwork"}
           </button>
         </form>
       </div>

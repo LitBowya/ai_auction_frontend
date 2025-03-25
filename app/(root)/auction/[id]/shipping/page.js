@@ -1,220 +1,250 @@
-"use client"; // Required for client-side interactivity
+"use client";
 
-import {useState} from "react";
-import {useRouter} from "next/navigation";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import useApi from "@/hooks/useApi";
-import {toast} from "sonner"; // Import toast for notifications
+import { toast } from "sonner";
 
 export default function AddShippingDetails({ params }) {
-    const router = useRouter();
-    const { id } = params; // Extract id from params
+  const router = useRouter();
+  const { id } = params;
 
-    const [formData, setFormData] = useState({
-        name: "",
-        address: "",
-        city: "",
-        postalCode: "",
-        contactNumber: "",
-        isDefault: false,
-    });
+  const [formData, setFormData] = useState({
+    name: "",
+    address: "",
+    city: "",
+    postalCode: "",
+    contactNumber: "",
+    isDefault: false,
+  });
 
-    const [useDefaultDetails, setUseDefaultDetails] = useState(false); // Track if default details are used
+  const [useDefaultDetails, setUseDefaultDetails] = useState(false);
+  const [shippingSaved, setShippingSaved] = useState(false); // Track if shipping is saved
 
-    // Use the useApi hook for saving shipping details
-    const { sendRequest: saveShipping, loading: savingShipping, error: shippingError } = useApi(
-        `/shipping`,
-        "POST"
-    );
+  const { postData: saveShipping, loading: savingShipping } =
+    useApi("/shipping");
 
-    // Use the useApi hook for initiating payment
-    const { sendRequest: initiatePayment, loading: initiatingPayment, error: paymentError } = useApi(
-        `/payments/${id}/pay`,
-        "POST"
-    );
+  const { postData: initiatePayment, loading: initiatingPayment } = useApi(
+    `/payments/${id}/pay`
+  );
 
-    // Use the useApi hook for fetching default shipping details
-    const { sendRequest: fetchDefaultShipping, loading: fetchingShipping, error: fetchError } = useApi(
-        `/shipping/`,
-        "GET"
-    );
+  const { fetchData: fetchDefaultShipping, loading: fetchingShipping } =
+    useApi("/shipping");
 
-    // Fetch default shipping details and populate the form
-    const handleFetchDefaultShipping = async () => {
-        try {
-            const response = await fetchDefaultShipping();
+  const handleFetchDefaultShipping = async () => {
+    try {
+      const response = await fetchDefaultShipping();
 
-            if (response.success && response.shipping) {
-                // Populate the form with the fetched shipping details
-                setFormData({
-                    name: response.shipping.name,
-                    address: response.shipping.address,
-                    city: response.shipping.city,
-                    postalCode: response.shipping.postalCode,
-                    contactNumber: response.shipping.contactNumber,
-                    isDefault: response.shipping.isDefault,
-                });
-                setUseDefaultDetails(true); // Mark that default details are being used
-                toast.success("Default shipping details loaded successfully.");
-            } else {
-                toast.error(response.message || "No default shipping details found.");
-            }
-        } catch (err) {
-            console.error("Error fetching default shipping details:", err);
-            toast.error("Failed to fetch default shipping details.");
-        }
-    };
+      if (response?.shipping) {
+        setFormData({
+          name: response.shipping.name,
+          address: response.shipping.address,
+          city: response.shipping.city,
+          postalCode: response.shipping.postalCode,
+          contactNumber: response.shipping.contactNumber,
+          isDefault: response.shipping.isDefault,
+        });
+        setUseDefaultDetails(true);
+        toast.success("Default shipping details loaded");
+      } else {
+        toast.error("No default shipping details found");
+      }
+    } catch (err) {
+      toast.error("Failed to fetch default details");
+      console.error("Fetch error:", err);
+    }
+  };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+  const handleSaveShipping = async () => {
+    try {
+      if (!useDefaultDetails) {
+        await saveShipping(formData);
+        setShippingSaved(true); // Mark shipping as saved
+        toast.success("Shipping details saved");
+        // Reset form data to its initial state
+        setFormData({
+          name: "",
+          address: "",
+          city: "",
+          postalCode: "",
+          contactNumber: "",
+          isDefault: false,
+        });
+      }
+    } catch (err) {
+      toast.error("Failed to save shipping details");
+      console.error("Save shipping error:", err);
+    }
+  };
 
-        try {
-            // Step 1: Save shipping details only if default details are not used
-            if (!useDefaultDetails) {
-                const shippingResponse = await saveShipping(formData);
+  const handleInitiatePayment = async () => {
+    try {
+      const paymentResponse = await initiatePayment();
 
-                if (!shippingResponse.success) {
-                    toast.error(shippingResponse.message || "Failed to save shipping details.");
-                    return;
+      if (paymentResponse?.paymentUrl) {
+        window.location.href = paymentResponse.paymentUrl;
+      } else {
+        throw new Error("No payment URL received");
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Payment failed");
+      console.error("Payment error:", err);
+    }
+  };
+
+  return (
+    <div className=" bg-gray-50 py-8">
+      <div className="max-w-[720px] mx-auto px-4 sm:px-6 lg:px-8">
+        <h1 className="text-2xl font-bold text-gray-900 mb-4">
+          Add Shipping Details
+        </h1>
+
+        <button
+          type="button"
+          onClick={handleFetchDefaultShipping}
+          disabled={fetchingShipping}
+          className="mb-4 w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed"
+        >
+          {fetchingShipping ? "Loading..." : "Use Default Details"}
+        </button>
+
+        <form className="space-y-4 ">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Full Name
+            </label>
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
+              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+              required
+              disabled={useDefaultDetails}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Address
+            </label>
+            <input
+              type="text"
+              name="address"
+              value={formData.address}
+              onChange={(e) =>
+                setFormData({ ...formData, address: e.target.value })
+              }
+              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+              required
+              disabled={useDefaultDetails}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              City
+            </label>
+            <input
+              type="text"
+              name="city"
+              value={formData.city}
+              onChange={(e) =>
+                setFormData({ ...formData, city: e.target.value })
+              }
+              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+              required
+              disabled={useDefaultDetails}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Postal Code
+            </label>
+            <input
+              type="text"
+              name="postalCode"
+              value={formData.postalCode}
+              onChange={(e) =>
+                setFormData({ ...formData, postalCode: e.target.value })
+              }
+              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+              required
+              disabled={useDefaultDetails}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Contact Number
+            </label>
+            <input
+              type="tel"
+              name="contactNumber"
+              value={formData.contactNumber}
+              onChange={(e) =>
+                setFormData({ ...formData, contactNumber: e.target.value })
+              }
+              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+              required
+              disabled={useDefaultDetails}
+            />
+          </div>
+
+          {!useDefaultDetails && (
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="isDefault"
+                checked={formData.isDefault}
+                onChange={(e) =>
+                  setFormData({ ...formData, isDefault: e.target.checked })
                 }
-
-                toast.success("Shipping details saved successfully.");
-            }
-
-            // Step 2: Initiate payment
-            const paymentResponse = await initiatePayment();
-
-            if (!paymentResponse.success) {
-                toast.error(paymentResponse.message || "Failed to initiate payment.");
-                return;
-            }
-
-            // Step 3: Redirect to the payment URL
-            window.location.href = paymentResponse.paymentUrl;
-        } catch (err) {
-            console.error("Error during shipping or payment:", err);
-            toast.error("An error occurred. Please try again.");
-        }
-    };
-
-    return (
-        <div className="min-h-screen bg-gray-50 py-8">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <h1 className="text-2xl font-bold text-gray-900 mb-4">
-                    Add Shipping Details
-                </h1>
-                {shippingError && <p className="text-red-500">{shippingError}</p>}
-                {paymentError && <p className="text-red-500">{paymentError}</p>}
-                {fetchError && <p className="text-red-500">{fetchError}</p>}
-
-                {/* Button to fetch default shipping details */}
-                <button
-                    type="button"
-                    onClick={handleFetchDefaultShipping}
-                    disabled={fetchingShipping}
-                    className="mb-4 w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:bg-blue-400"
-                >
-                    {fetchingShipping ? "Fetching Default Details..." : "Use Default Shipping Details"}
-                </button>
-
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">
-                            Name
-                        </label>
-                        <input
-                            type="text"
-                            value={formData.name}
-                            onChange={(e) =>
-                                setFormData({ ...formData, name: e.target.value })
-                            }
-                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                            required
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">
-                            Address
-                        </label>
-                        <input
-                            type="text"
-                            value={formData.address}
-                            onChange={(e) =>
-                                setFormData({ ...formData, address: e.target.value })
-                            }
-                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                            required
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">
-                            City
-                        </label>
-                        <input
-                            type="text"
-                            value={formData.city}
-                            onChange={(e) =>
-                                setFormData({ ...formData, city: e.target.value })
-                            }
-                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                            required
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">
-                            Postal Code
-                        </label>
-                        <input
-                            type="text"
-                            value={formData.postalCode}
-                            onChange={(e) =>
-                                setFormData({ ...formData, postalCode: e.target.value })
-                            }
-                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                            required
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">
-                            Contact Number
-                        </label>
-                        <input
-                            type="text"
-                            value={formData.contactNumber}
-                            onChange={(e) =>
-                                setFormData({ ...formData, contactNumber: e.target.value })
-                            }
-                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                            required
-                        />
-                    </div>
-                    <div>
-                        <label className="flex items-center">
-                            <input
-                                type="checkbox"
-                                checked={formData.isDefault}
-                                onChange={(e) =>
-                                    setFormData({ ...formData, isDefault: e.target.checked })
-                                }
-                                className="mr-2"
-                            />
-                            Set as Default
-                        </label>
-                    </div>
-                    <button
-                        type="submit"
-                        disabled={savingShipping || initiatingPayment}
-                        className={`w-full ${
-                            savingShipping || initiatingPayment ? "bg-gray-400" : "bg-green-600"
-                        } text-white py-2 px-4 rounded-md hover:bg-green-700`}
-                    >
-                        {savingShipping
-                            ? "Saving Shipping Details..."
-                            : initiatingPayment
-                                ? "Initiating Payment..."
-                                : "Proceed to Payment"}
-                    </button>
-                </form>
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              />
+              <label
+                htmlFor="isDefault"
+                className="ml-2 block text-sm text-gray-700"
+              >
+                Save as default shipping address
+              </label>
             </div>
-        </div>
-    );
+          )}
+
+          {/* Save Shipping Button */}
+          <button
+            type="button"
+            onClick={handleSaveShipping}
+            disabled={savingShipping}
+            className={`w-full ${
+              savingShipping
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-green-600 hover:bg-green-700"
+            } text-white py-2 px-4 rounded-md transition-colors`}
+          >
+            {savingShipping ? "Saving Shipping..." : "Save Shipping"}
+          </button>
+
+          {/* Proceed to Payment Button */}
+          <button
+            type="button"
+            onClick={handleInitiatePayment}
+            disabled={
+              initiatingPayment || (!useDefaultDetails && !shippingSaved)
+            }
+            className={`w-full ${
+              initiatingPayment || (!useDefaultDetails && !shippingSaved)
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700"
+            } text-white py-2 px-4 rounded-md transition-colors`}
+          >
+            {initiatingPayment ? "Processing Payment..." : "Proceed to Payment"}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
 }

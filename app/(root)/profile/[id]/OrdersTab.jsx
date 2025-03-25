@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 
 const OrdersTab = ({ orders }) => {
     return (
@@ -8,10 +9,18 @@ const OrdersTab = ({ orders }) => {
                 <ul className="space-y-4">
                     {orders.map((order) => (
                         <li key={order._id} className="border-b border-gray-200 pb-4">
-                            <p className="text-lg font-semibold">{order.auction.title}</p>
-                            <p className="text-gray-600">Amount: GHS {order.amount}</p>
-                            <p className="text-gray-600">Status: {order.status}</p>
-                        </li>
+                        {/* Ensure the imageUrl array is not empty and the first image exists */}
+                        <Image 
+                            src={order.auction.artwork.imageUrl && order.auction.artwork.imageUrl[0] ? order.auction.artwork.imageUrl[0].url : '/path/to/default-image.jpg'}
+                            alt={order.auction.artwork.title || 'Artwork image'}
+                            className="w-[125px] h-auto"
+                            width={125}
+                            height={125}
+                        />
+                        <p className="text-lg font-semibold">{order.auction.artwork.title}</p>
+                        <p className="text-gray-600">Status: {order.status}</p>
+                    </li>
+                    
                     ))}
                 </ul>
             ) : (

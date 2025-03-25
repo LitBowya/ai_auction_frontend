@@ -1,13 +1,13 @@
 "use client";
 
-import React, {useRef, useState} from "react";
+import React, { useRef, useState } from "react";
 import gsap from "gsap";
-import {useGSAP} from "@gsap/react";
-import {ScrollTrigger} from "gsap/ScrollTrigger";
-import {FaPaperPlane} from "react-icons/fa";
+import { useGSAP } from "@gsap/react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { FaPaperPlane } from "react-icons/fa";
 import Button from "@/components/Button";
 import useApi from "@/hooks/useApi";
-import {toast} from "sonner";
+import { toast } from "sonner";
 
 // Register ScrollTrigger plugin
 gsap.registerPlugin(ScrollTrigger);
@@ -17,14 +17,8 @@ const SendMessageSection = () => {
     const planeRef = useRef(null);
 
     const [formData, setFormData] = useState({ name: "", email: "", message: "" });
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null)
-
-    // ** Handle Ending Auction **
-    const { sendRequest: sendMessage, loading: loadingMessage} = useApi(
-        `/contact/send`,
-        "POST"
-    );
+    const [error, setError] = useState(null);
+    const { postData: sendMessage, loading: loadingMessage } = useApi("/contact/send");
 
     useGSAP(() => {
         gsap.from(sendMessageRef.current, {
@@ -49,28 +43,24 @@ const SendMessageSection = () => {
         });
     }, []);
 
-    // Handle Input Change
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    // Handle Form Submit
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true);
         setError(null);
 
         try {
-            await sendMessage(formData)
+            await sendMessage(formData);
             setFormData({ name: "", email: "", message: "" });
             toast.success('Message sent successfully.');
         } catch (err) {
-            setError(err.message);
-            toast.error(err.message);
-            console.error(err)
+            const errorMessage = err.response?.data?.message || err.message || "Failed to send message";
+            setError(errorMessage);
+            toast.error(errorMessage);
+            console.error(err);
         }
-
-        setLoading(false);
     };
 
     return (
@@ -115,9 +105,13 @@ const SendMessageSection = () => {
                             ></textarea>
                         </div>
 
-                        {/* Show success or error message */}
-
-                        <Button type="submit" text={loading ? "Sending..." : "Send Message"} icon={<FaPaperPlane className="text-lg" />} variant="outline_white" disabled={loading} />
+                        <Button 
+                            type="submit" 
+                            text={loadingMessage ? "Sending..." : "Send Message"} 
+                            icon={<FaPaperPlane className="text-lg" />} 
+                            variant="outline_white" 
+                            disabled={loadingMessage} 
+                        />
                     </form>
                 </div>
 

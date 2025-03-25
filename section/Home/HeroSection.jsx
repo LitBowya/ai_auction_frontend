@@ -5,8 +5,8 @@ import ActiveAuctionSection from "./ActiveAuctionSection";
 
 export default async function HeroSection() {
   // Fetch all auctions
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auction/all`, {
-    next: { revalidate: 1 }, // Ensures fresh data
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auctions/all`, {
+    cache: "no-store"
   });
 
   if (!response.ok) {
@@ -23,7 +23,7 @@ export default async function HeroSection() {
   // Latest auctions (most recent 4)
   const latestAuctions = allAuctions
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-    .slice(0, 4);
+    .slice(0, 3);
 
   // Past auctions (ended auctions, limit to 4)
   const pastAuctions = allAuctions

@@ -11,61 +11,84 @@ import CreateArtworkModal from "./CreateArtworkModal";
 import ArtworkTable from "./ArtworkTable";
 
 export default function Artwork() {
-  const [isModalOpen, setIsModalOpen] = useState(false); // State to control modal visibility
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Fetch total number of artworks
-  const {
-    data: totalArtworks,
-    loading: summaryLoading,
+  // Using the new useApi hook with automatic GET request
+  const { 
+    data: totalArtworks, 
+    loading: summaryLoading, 
     error: summaryError,
-    refetch,
-  } = useApi("/artworks", "GET");
+    fetchData: fetchArtworks
+  } = useApi("/artworks");
 
-  // Handle modal open/close
   const handleOpenModal = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
 
-  // Handle loading and error states
+  // Handle loading state
   if (summaryLoading) {
-    return <Spinner />;
+    return (
+      <div className="max-w-screen-xl mx-auto p-8 bg-gray-100 flex justify-center items-center">
+        <Spinner />
+      </div>
+    );
   }
 
+  // Handle error state with retry option
   if (summaryError) {
-    return <Error />;
+    return (
+      <div className="max-w-screen-xl mx-auto p-8 bg-gray-100 flex flex-col justify-center items-center">
+        <Error 
+          message={summaryError.message || "Failed to load artwork data"}
+          onRetry={fetchArtworks}
+        />
+      </div>
+    );
   }
 
-  if (!totalArtworks) {
-    return <Error />;
+  // Handle empty data state
+  if (!totalArtworks?.artworks) {
+    return (
+      <div className="max-w-screen-xl mx-auto p-8 bg-gray-100 flex flex-col justify-center items-center">
+        <p className="text-red-500 text-lg font-semibold mb-4">
+          No artwork data available
+        </p>
+        <Button
+          variant="primary"
+          text="Retry"
+          onClick={fetchArtworks}
+        />
+      </div>
+    );
   }
-
-  console.log(totalArtworks)
 
   return (
-    <div className="max_width">
-      <h1 className="text-2xl font-bold mb-2">Artwork Monitoring</h1>
-      <ArtworkInsights data={totalArtworks.artworks} />
-      <div className={`justify-end flex items-center`}>
-        {/* Create Artwork Button */}
+    <div className="max-w-screen-xl mx-auto p-8 bg-gray-100">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Artwork Monitoring</h1>
         <Button
-          variant={`primary`}
-          text={`Create Artwork`}
+          variant="primary"
+          text="Create Artwork"
           onClick={handleOpenModal}
           icon={<FaPlus />}
         />
-        <CreateArtworkModal
-          isOpen={isModalOpen}
-          onRequestClose={handleCloseModal}
-          refetch={refetch}
-        />
-
-        
       </div>
 
-      {/* Artwork Table */}
-      <ArtworkTable
-          artworks={totalArtworks.artworks || []}
-          refetch={refetch}
+      <div className="mb-8">
+        <ArtworkInsights data={totalArtworks.artworks} />
+      </div>
+
+      <div className="bg-white p-6 rounded-lg shadow">
+        <ArtworkTable 
+          artworks={totalArtworks.artworks} 
+          refetch={fetchArtworks} 
         />
+      </div>
+
+      <CreateArtworkModal
+        isOpen={isModalOpen}
+        onRequestClose={handleCloseModal}
+        refetch={fetchArtworks}
+      />
     </div>
   );
 }

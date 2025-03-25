@@ -3,8 +3,6 @@ import ProfileTabs from "./ProfileTabs";
 export default async function ProfilePage({ params }) {
     const { id } = params; // Extract id from URL parameters
 
-    console.log(id);
-
     // Fetch user profile data
     const profileResponse = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/users/${id}/profile`,
@@ -14,7 +12,7 @@ export default async function ProfilePage({ params }) {
                 "Content-Type": "application/json",
             },
             credentials: "include", // Include cookies for authentication
-            next: { revalidate: 60 }, // Revalidate data every 60 seconds
+            next: { revalidate: 1 }, // Revalidate data every 60 seconds
         }
     );
     const profileData = await profileResponse.json();
@@ -30,7 +28,7 @@ export default async function ProfilePage({ params }) {
                 "Content-Type": "application/json",
             },
             credentials: "include",
-            next: { revalidate: 60 },
+            next: { revalidate: 1 },
         }
     );
     const ordersData = await ordersResponse.json();
@@ -46,7 +44,7 @@ export default async function ProfilePage({ params }) {
                 "Content-Type": "application/json",
             },
             credentials: "include",
-            next: { revalidate: 60 },
+            next: { revalidate: 1 },
         }
     );
     const paymentsData = await paymentsResponse.json();
@@ -61,7 +59,7 @@ export default async function ProfilePage({ params }) {
                 "Content-Type": "application/json",
             },
             credentials: "include",
-            next: { revalidate: 60 },
+            next: { revalidate: 1 },
         }
     );
     const auctionsData = await auctionsResponse.json();

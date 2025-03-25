@@ -183,7 +183,7 @@ const HeroAuction = ({ auctions }) => {
                 </div>
 
                 {/* Grid Layout for Desktop */}
-                <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 gap-10 mt-6 z-10 max-w-6xl px-4">
+                <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 items-center justify-center gap-10 mt-6 z-10 max-w-6xl px-4">
                     {auctions.map((auction, index) => (
                         <div
                             key={auction._id}

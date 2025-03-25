@@ -4,9 +4,9 @@ export default async function AuctionDetails({ params }) {
   try {
     // Fetch auction details using params.id
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/auction/${params.id}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/auctions/${params.id}`,
       {
-        next: { revalidate: 1 }, // Ensures fresh data
+        cache: "no-store"
       }
     );
 

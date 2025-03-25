@@ -1,36 +1,68 @@
+"use client";
+
 import React from "react";
 import useApi from "@/hooks/useApi";
 import { FaCheckCircle, FaShippingFast } from "react-icons/fa";
-import Error from "@/components/Error";
+import { toast } from "sonner";
 
 const PaymentTable = ({ payments, refetch }) => {
-  // Update useApi hook URLs to accept dynamic values
-  const { sendRequest: verifyPayment } = useApi("", "POST"); // General URL, will append auctionId
-  const { sendRequest: confirmShipment } = useApi("", "PUT"); // General URL, will append paymentId
+  // Using specific methods from the new hook
+  const { 
+    postData: verifyPayment, 
+    loading: verifyingPayment 
+  } = useApi("/payments");
 
-  if (!payments) {
-    return <Error />;
-  }
+  const { 
+    putData: confirmShipment, 
+    loading: confirmingShipment 
+  } = useApi("/payments");
 
   const handleVerifyPayment = async (auctionId) => {
     try {
-      const url = `/payments/${auctionId}/verify`; // Dynamically build the URL
-      await verifyPayment(url); // Pass the dynamically created URL
-      refetch(); // Refresh data after verifying payment
+      toast.warning('Verifying payment...');
+      await verifyPayment({}, {
+        id: `${auctionId}/verify`
+      });
+      refetch();
+      toast.success('Payment verified successfully');
     } catch (error) {
-      console.error("Error verifying payment:", error.message);
+      const errorMsg = error.response?.data?.message || 
+                      error.message || 
+                      "Failed to verify payment";
+      toast.error(errorMsg);
+      console.error("Payment verification error:", errorMsg);
     }
   };
 
   const handleConfirmShipment = async (paymentId) => {
     try {
-      const url = `/payments/${paymentId}/shipment`; // Dynamically build the URL
-      await confirmShipment(url); // Pass the dynamically created URL
-      refetch(); // Refresh data after confirming shipment
+      if (!paymentId) {
+        throw new Error("Payment ID is required");
+      }
+
+      toast.warning("Confirming shipment...");
+      await confirmShipment({}, {
+        id: `${paymentId}/shipment`,
+      });
+      
+      refetch();
+      toast.success("Shipment confirmed successfully");
     } catch (error) {
-      console.error("Error confirming shipment:", error.message);
+      const errorMsg = error.response?.data?.message || 
+                     error.message || 
+                     "Failed to confirm shipment";
+      toast.error(errorMsg);
+      console.error("Shipment confirmation error:", errorMsg);
     }
   };
+
+  if (!payments || payments.length === 0) {
+    return (
+      <div className="bg-white shadow-lg rounded-lg overflow-hidden mt-10 p-6 text-center">
+        <p className="text-gray-500">No payment records found</p>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white shadow-lg rounded-lg overflow-hidden mt-10">
@@ -55,29 +87,39 @@ const PaymentTable = ({ payments, refetch }) => {
           {payments.map((payment) => (
             <tr key={payment._id}>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                {payment.buyer.name}
+                {payment.buyer?.name || "Unknown"}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                GHS {payment.amount.toFixed(2)}
+                GHS {payment.amount?.toFixed(2) || "0.00"}
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                {payment.status.charAt(0).toUpperCase() + payment.status.slice(1)}
+              <td className="px-6 py-4 whitespace-nowrap text-sm">
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                  payment.status === "pending" ? "bg-yellow-100 text-yellow-800" :
+                  payment.status === "paid" ? "bg-green-100 text-green-800" :
+                  "bg-red-100 text-red-800"
+                }`}>
+                  {payment.status?.charAt(0).toUpperCase() + payment.status?.slice(1) || "Unknown"}
+                </span>
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                 {payment.status === "pending" && (
                   <button
                     onClick={() => handleVerifyPayment(payment.auction)}
-                    className="text-green-500 cursor-pointer text-lg hover:text-green-700"
+                    disabled={verifyingPayment}
+                    className="text-green-500 hover:text-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    aria-label="Verify payment"
                   >
-                    <FaCheckCircle />
+                    <FaCheckCircle className="text-lg" />
                   </button>
                 )}
                 {payment.status === "paid" && (
                   <button
                     onClick={() => handleConfirmShipment(payment._id)}
-                    className="text-blue-500 hover:text-blue-700"
+                    disabled={confirmingShipment}
+                    className="text-blue-500 hover:text-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    aria-label="Confirm shipment"
                   >
-                    <FaShippingFast />
+                    <FaShippingFast className="text-lg" />
                   </button>
                 )}
               </td>

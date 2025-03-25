@@ -1,22 +1,32 @@
+"use client";
+
 import React from "react";
 import useApi from "@/hooks/useApi";
 import { FaTrash } from "react-icons/fa";
+import { toast } from "sonner";
 
 const ArtworkTable = ({ artworks, refetch }) => {
-  const { sendRequest: deleteArtwork } = useApi(`/artworks/:id`, "DELETE");
+  // Using the new deleteData method from useApi
+  const { deleteData: deleteArtwork, loading: deletingArtwork } = useApi("/artworks");
 
   const handleDeleteArtwork = async (id) => {
     try {
-      await deleteArtwork(null, "DELETE", null, { id }); // Pass ID as a parameter
-      refetch(); // Refresh data after deleting artwork
+      const confirmDelete = window.confirm("Are you sure you want to delete this artwork?");
+      if (!confirmDelete) return;
+
+      await deleteArtwork({id:id});
+      
+      refetch();
+      toast.success("Artwork deleted successfully");
     } catch (error) {
-      console.error("Error deleting artwork:", error.message);
+      const errorMsg = error.response?.data?.message || error.message || "Failed to delete artwork";
+      toast.error(errorMsg);
+      console.error("Error deleting artwork:", errorMsg);
     }
   };
 
   return (
     <div className="bg-white shadow-lg rounded-lg overflow-hidden">
-
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">
           <tr>
@@ -38,21 +48,22 @@ const ArtworkTable = ({ artworks, refetch }) => {
                 {artwork.title}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                {artwork.category.name}
+                {artwork.category?.name || "Uncategorized"}
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                 <button
                   onClick={() => handleDeleteArtwork(artwork._id)}
-                  className="text-red-500 text-lg hover:text-red-700"
+                  disabled={deletingArtwork}
+                  className="text-red-500 hover:text-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  aria-label="Delete artwork"
                 >
-                  <FaTrash />
+                  <FaTrash className="text-lg" />
                 </button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-
     </div>
   );
 };

@@ -1,6 +1,8 @@
 'use client';
 import Link from 'next/link';
-import {usePathname} from 'next/navigation'; // Import usePathname
+import {usePathname} from 'next/navigation';
+import Button from '@/components/Button';
+import { FaHome } from 'react-icons/fa';
 
 export default function Sidebar({ isOpen }) {
     const pathname = usePathname(); // Get the current route
@@ -10,13 +12,11 @@ export default function Sidebar({ isOpen }) {
         { href: '/dashboard', label: 'Dashboard' },
         { href: '/auctions', label: 'Auctions' },
         { href: '/artworks', label: 'Artworks' },
-        { href: '/bids', label: 'Bids' },
         { href: '/payments', label: 'Payments' },
         { href: '/categories', label: 'Categories' },
         { href: '/orders', label: 'Orders' },
         { href: '/users', label: 'Users' },
         { href: '/audits', label: 'Audits' },
-        { href: '/settings', label: 'Settings' },
 
     ];
 
@@ -26,7 +26,7 @@ export default function Sidebar({ isOpen }) {
                 isOpen ? 'translate-x-0' : '-translate-x-full'
             } md:translate-x-0 md:block fixed top-16 left-0 h-[calc(100vh-64px)] z-50`}
         >
-            <nav>
+            <nav className='flex flex-col justify-between h-full'>
                 <ul className="space-y-2">
                     {links.map((link) => (
                         <li key={link.href}>
@@ -43,6 +43,11 @@ export default function Sidebar({ isOpen }) {
                         </li>
                     ))}
                 </ul>
+
+                {/* Go Home Button */}
+            <Link href="/" passHref>
+                <Button className='w-full' variant='danger' text='Go Home' icon={<FaHome />} />
+            </Link>
             </nav>
         </aside>
     );
