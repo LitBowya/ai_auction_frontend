@@ -46,6 +46,7 @@ const PaymentTable = ({ payments, refetch }) => {
       });
       
       refetch();
+      window.location.reload()
       toast.success("Shipment confirmed successfully");
     } catch (error) {
       const errorMsg = error.response?.data?.message || 

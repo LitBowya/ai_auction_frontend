@@ -35,7 +35,7 @@ const OrderTable = ({ orders }) => {
                   {order.buyer.name}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  GHS {order.auction.highestBid.toFixed(2)}
+                  GHS {order?.auction?.highestBid?.toFixed(2)}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <button
@@ -57,15 +57,15 @@ const OrderTable = ({ orders }) => {
                     <div className="space-y-2">
                       <p>
                         <strong>Shipping Address:</strong>{" "}
-                        {order.shipping.address}, {order.shipping.city},{" "}
-                        {order.shipping.postalCode}
+                        {order?.shipping?.address}, {order?.shipping?.city},{" "}
+                        {order?.shipping?.postalCode}
                       </p>
                       <p>
                         <strong>Contact Number:</strong>{" "}
-                        {order.shipping.contactNumber}
+                        {order?.shipping?.contactNumber}
                       </p>
                       <p>
-                        <strong>Shipping Name:</strong> {order.shipping.name}
+                        <strong>Shipping Name:</strong> {order?.shipping?.name}
                       </p>
                     </div>
                   </td>

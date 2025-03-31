@@ -14,17 +14,15 @@ const CreateArtworkModal = ({ isOpen, onRequestClose, refetch }) => {
     category: "",
   });
   const [images, setImages] = useState([]);
+  const [pptxFile, setPptxFile] = useState(null);
   const [error, setError] = useState("");
   const [aiRejectionReasons, setAiRejectionReasons] = useState([]);
 
-  // Using new hook methods
-  const { postData: createArtwork, loading: creatingArtwork } =
-    useApi("/artworks");
+  const { postData: createArtwork, loading: creatingArtwork } = useApi("/artworks");
   const {
     data: categories,
     loading: categoriesLoading,
     error: categoriesError,
-    fetchData: fetchCategories,
   } = useApi("/category");
 
   const handleChange = (e) => {
@@ -36,10 +34,21 @@ const CreateArtworkModal = ({ isOpen, onRequestClose, refetch }) => {
     setImages(Array.from(e.target.files));
   };
 
+  const handlePptxChange = (e) => {
+    const file = e.target.files[0];
+    if (file && file.type !== "application/vnd.openxmlformats-officedocument.presentationml.presentation") {
+      setError("Only .pptx files are allowed");
+      setPptxFile(null);
+      return;
+    }
+    setError("");
+    setPptxFile(file);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    setAiRejectionReasons([]); // Reset AI reasons on new submission
+    setAiRejectionReasons([]);
 
     if (!formData.category) {
       setError("Please select a category");
@@ -63,6 +72,10 @@ const CreateArtworkModal = ({ isOpen, onRequestClose, refetch }) => {
         formDataToSend.append("images", file);
       });
 
+      if (pptxFile) {
+        formDataToSend.append("pptx", pptxFile);
+      }
+
       const response = await createArtwork(formDataToSend);
 
       resetForm();
@@ -70,18 +83,15 @@ const CreateArtworkModal = ({ isOpen, onRequestClose, refetch }) => {
       refetch();
       toast.success("Artwork uploaded successfully");
     } catch (err) {
-      // Handle AI rejection specifically
       if (err.response?.data?.error?.type === "AI_DETECTION") {
         setAiRejectionReasons(err.response.data.error.reasons);
         toast.error("AI-generated images are not allowed", {
           description: `Your artwork was rejected for the following reasons: ${err.response.data.error.reasons}`,
-          duration: 10000, // Longer duration for user to read
+          duration: 10000,
         });
       } else {
         const errorMsg =
-          err.response?.data?.message ||
-          err.message ||
-          "Failed to upload artwork";
+          err.response?.data?.message || err.message || "Failed to upload artwork";
         setError(errorMsg);
         toast.error(errorMsg);
       }
@@ -91,6 +101,7 @@ const CreateArtworkModal = ({ isOpen, onRequestClose, refetch }) => {
   const resetForm = () => {
     setFormData({ title: "", description: "", category: "" });
     setImages([]);
+    setPptxFile(null);
   };
 
   return (
@@ -110,11 +121,8 @@ const CreateArtworkModal = ({ isOpen, onRequestClose, refetch }) => {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Title */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Title
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
             <input
               type="text"
               name="title"
@@ -125,11 +133,8 @@ const CreateArtworkModal = ({ isOpen, onRequestClose, refetch }) => {
             />
           </div>
 
-          {/* Description */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Description
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
             <textarea
               name="description"
               value={formData.description}
@@ -140,11 +145,8 @@ const CreateArtworkModal = ({ isOpen, onRequestClose, refetch }) => {
             />
           </div>
 
-          {/* Category */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Category
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
             {categoriesLoading ? (
               <p className="text-gray-500">Loading categories...</p>
             ) : (
@@ -165,7 +167,6 @@ const CreateArtworkModal = ({ isOpen, onRequestClose, refetch }) => {
             )}
           </div>
 
-          {/* Images */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Upload Images (Multiple allowed)
@@ -181,7 +182,19 @@ const CreateArtworkModal = ({ isOpen, onRequestClose, refetch }) => {
             />
           </div>
 
-          {/* Submit Button */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Upload PPTX File
+            </label>
+            <input
+              type="file"
+              name="pptx"
+              accept=".pptx"
+              onChange={handlePptxChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
           <button
             type="submit"
             disabled={creatingArtwork}

@@ -3,6 +3,7 @@
 import React, {useState} from "react";
 import {toast} from "sonner";
 import Button from "@/components/Button";
+import Error from "@/components/Error";
 
 const ProfileInfo = ({ profile }) => {
     const [name, setName] = useState(profile.name);
@@ -27,6 +28,10 @@ const ProfileInfo = ({ profile }) => {
             toast.error("Failed to update profile");
         }
     };
+
+    if(!profile){
+        return (<Error message="No data for profile" />)
+    }
 
     return (
         <div className="bg-white p-6 rounded-lg shadow-md">

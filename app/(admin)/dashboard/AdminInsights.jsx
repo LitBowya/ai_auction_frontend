@@ -4,7 +4,7 @@ import {FaCheckCircle, FaDollarSign, FaGavel, FaUsers} from "react-icons/fa";
 
 const AdminInsights = ({ data }) => {
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Total Users Card */}
             <Card
                 title="Total Users"
@@ -26,13 +26,6 @@ const AdminInsights = ({ data }) => {
                 value={data.completedAuctions}
                 icon={<span className={`text-orange-500`}><FaCheckCircle /></span>}
 
-            />
-
-            {/* Total Earnings Card */}
-            <Card
-                title="Total Earnings"
-                value={`GHS ${data.totalEarnings}`}
-                icon={<span className={`text-green-500`}><FaDollarSign /></span>}
             />
         </div>
     );

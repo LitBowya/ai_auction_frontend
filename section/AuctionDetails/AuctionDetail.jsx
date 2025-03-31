@@ -38,33 +38,27 @@ const AuctionDetail = ({ auction }) => {
   const router = useRouter();
 
   // ** API Hooks **
-  const { 
-    data: highestBidData, 
-    loading: highestBidLoading, 
+  const {
+    data: highestBidData,
+    loading: highestBidLoading,
     fetchData: fetchHighestBid,
-    refetch
   } = useApi(`/bids/highest/${auctionId}`);
 
-  const { 
-    data: bidsData, 
-    loading: bidsLoading, 
-    fetchData: fetchBids 
+  const {
+    data: bidsData,
+    loading: bidsLoading,
+    fetchData: fetchBids,
   } = useApi(`/bids/${auctionId}`);
 
-  const { 
-    data: paymentData,
-    fetchData: fetchPayments
-  } = useApi(`/payments`);
+  const { data: paymentData, fetchData: fetchPayments } = useApi(`/payments`);
 
-  const { 
-    postData: placeBid, 
-    loading: bidPlacing 
-  } = useApi(`/bids/${auctionId}`);
+  const { postData: placeBid, loading: bidPlacing } = useApi(
+    `/bids/${auctionId}`
+  );
 
-  const { 
-    putData: endAuction, 
-    loading: endingAuction 
-  } = useApi(`/auctions/${auctionId}`);
+  const { putData: endAuction, loading: endingAuction } = useApi(
+    `/auctions/${auctionId}`
+  );
 
   // ** Handlers **
   const handleEndAuction = async () => {
@@ -74,7 +68,7 @@ const AuctionDetail = ({ auction }) => {
       toast.success("Auction Ended successfully!");
       fetchHighestBid();
       fetchBids();
-      refetch()
+      window.location.reload();
     } catch (error) {
       toast.error(error?.response?.data?.message || "Failed to end auction!");
     }
@@ -135,17 +129,19 @@ const AuctionDetail = ({ auction }) => {
   }, [artwork]);
 
   // ** Derived Values **
-  const payment = paymentData?.payments?.find(p => p.auction === auctionId);
+  const payment = paymentData?.payments?.find((p) => p.auction === auctionId);
   const isPaymentMade = payment?.verified === true;
-  const auctionEnded = status === "completed" || new Date() >= new Date(biddingEndTime);
-  const auctionActive = status === "active" && new Date() < new Date(biddingEndTime);
+  const auctionEnded =
+    status === "completed" || new Date() >= new Date(biddingEndTime);
+  const auctionActive =
+    status === "active" && new Date() < new Date(biddingEndTime);
 
   return (
     <div className="max_width">
       <div className="max-w-7xl p-6 grid grid-cols-1 md:grid-cols-2 gap-10 bg-white my-2 rounded-lg">
         {/* Left Section: Images */}
-        <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-4">
-          <div className="grid grid-cols-3 md:grid-cols-1 gap-2">
+        <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-4 sticky top-10">
+          <div className="grid grid-cols-3 md:grid-cols-1 gap-2 ">
             {artwork.imageUrl.map((img, index) => (
               <Image
                 key={index}
@@ -176,32 +172,36 @@ const AuctionDetail = ({ auction }) => {
           <p className="text-gray-700">{artwork.description}</p>
 
           <div className="bg-gray-100 p-4 rounded-lg space-y-4">
-            <DetailItem 
+            <DetailItem
               icon={<FaClock className="text-blue-500" />}
               label="Start Time"
               value={format(new Date(startingTime), "PPP p")}
             />
-            <DetailItem 
+            <DetailItem
               icon={<FaClock className="text-red-500" />}
               label="End Time"
               value={format(new Date(biddingEndTime), "PPP p")}
             />
-            <DetailItem 
+            <DetailItem
               icon={<FaTag className="text-green-500" />}
               label="Starting Price"
               value={`GHS ${startingPrice}`}
             />
             {maxBidLimit && (
-              <DetailItem 
+              <DetailItem
                 icon={<FaMoneyBillWave className="text-yellow-500" />}
                 label="Max Bid Limit"
                 value={`GHS ${maxBidLimit}`}
               />
             )}
-            <DetailItem 
+            <DetailItem
               icon={<FaGavel className="text-purple-500" />}
               label="Highest Bid"
-              value={highestBidData?.highestBid ? `GHS ${highestBidData.highestBid}` : "No bids yet"}
+              value={
+                highestBidData?.highestBid
+                  ? `GHS ${highestBidData.highestBid}`
+                  : "No bids yet"
+              }
             />
           </div>
 
@@ -209,24 +209,21 @@ const AuctionDetail = ({ auction }) => {
           {auctionActive ? (
             user ? (
               <>
-                <BidForm 
+                <BidForm
                   bidAmount={bidAmount}
                   setBidAmount={setBidAmount}
                   handlePlaceBid={handlePlaceBid}
                   loading={bidPlacing}
                   disabled={user?._id === seller}
                 />
-                
-                <BidHistory 
-                  bids={bidsData?.bids}
-                  loading={bidsLoading}
-                />
+
+                <BidHistory bids={bidsData?.bids} loading={bidsLoading} />
               </>
             ) : (
               <LoginPrompt />
             )
           ) : auctionEnded ? (
-            <AuctionEnded 
+            <AuctionEnded
               bids={bidsData?.bids}
               endTime={biddingEndTime}
               isWinner={user?._id === highestBidder}
@@ -260,7 +257,13 @@ const DetailItem = ({ icon, label, value }) => (
   </p>
 );
 
-const BidForm = ({ bidAmount, setBidAmount, handlePlaceBid, loading, disabled }) => (
+const BidForm = ({
+  bidAmount,
+  setBidAmount,
+  handlePlaceBid,
+  loading,
+  disabled,
+}) => (
   <div className="p-4 bg-gray-50 rounded-lg">
     <label className="block text-lg font-semibold mb-2">
       Enter Your Bid (GHS)
@@ -294,7 +297,8 @@ const BidHistory = ({ bids, loading }) => (
           <li key={bid._id} className="flex items-center gap-3 p-2 border-b">
             <FaUser className="text-blue-500" />
             <p>
-              <strong>{bid.bidder.name}</strong> bid <strong>GHS {bid.amount}</strong> at{" "}
+              <strong>{bid.bidder.name}</strong> bid{" "}
+              <strong>GHS {bid.amount}</strong> at{" "}
               {format(new Date(bid.createdAt), "PPP p")}
             </p>
           </li>

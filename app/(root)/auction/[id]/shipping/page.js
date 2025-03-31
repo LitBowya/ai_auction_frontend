@@ -99,15 +99,6 @@ export default function AddShippingDetails({ params }) {
           Add Shipping Details
         </h1>
 
-        <button
-          type="button"
-          onClick={handleFetchDefaultShipping}
-          disabled={fetchingShipping}
-          className="mb-4 w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed"
-        >
-          {fetchingShipping ? "Loading..." : "Use Default Details"}
-        </button>
-
         <form className="space-y-4 ">
           <div>
             <label className="block text-sm font-medium text-gray-700">
@@ -193,26 +184,6 @@ export default function AddShippingDetails({ params }) {
               disabled={useDefaultDetails}
             />
           </div>
-
-          {!useDefaultDetails && (
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                id="isDefault"
-                checked={formData.isDefault}
-                onChange={(e) =>
-                  setFormData({ ...formData, isDefault: e.target.checked })
-                }
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-              />
-              <label
-                htmlFor="isDefault"
-                className="ml-2 block text-sm text-gray-700"
-              >
-                Save as default shipping address
-              </label>
-            </div>
-          )}
 
           {/* Save Shipping Button */}
           <button

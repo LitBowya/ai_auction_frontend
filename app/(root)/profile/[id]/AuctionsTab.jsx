@@ -1,24 +1,115 @@
 "use client";
+import { FiAward, FiClock, FiBarChart2, FiCalendar } from "react-icons/fi";
+import Link from "next/link";
 
 const AuctionsTab = ({ auctions }) => {
-    return (
-        <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-2xl font-bold mb-4">Your Auctions</h2>
-            {auctions.length > 0 ? (
-                <ul className="space-y-4">
-                    {auctions.map((auction) => (
-                        <li key={auction._id} className="border-b border-gray-200 pb-4">
-                            <p className="text-lg font-semibold">{auction.title}</p>
-                            <p className="text-gray-600">Highest Bid: GHS {auction.highestBid}</p>
-                            <p className="text-gray-600">Status: {auction.status}</p>
-                        </li>
-                    ))}
-                </ul>
-            ) : (
-                <p>No auctions found.</p>
-            )}
+  const getStatusColor = (status) => {
+    switch(status.toLowerCase()) {
+      case 'active': return 'bg-blue-100 text-blue-800';
+      case 'completed': return 'bg-green-100 text-green-800';
+      case 'cancelled': return 'bg-red-100 text-red-800';
+      case 'pending': return 'bg-yellow-100 text-yellow-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  return (
+    <div className="bg-white p-6 rounded-lg shadow-md max_width">
+      <h2 className="text-2xl font-bold mb-6 text-gray-800 border-b pb-2">Your Auctions</h2>
+      
+      {auctions.length > 0 ? (
+        <div className="grid gap-4">
+          {auctions.map((auction) => {
+            const endDate = new Date(auction.biddingEndTime).toLocaleDateString('en-GB', {
+              day: 'numeric',
+              month: 'short',
+              year: 'numeric'
+            });
+            
+            const bidCount = auction.bids?.length || 0;
+            const timeRemaining = auction.status === 'active' 
+              ? `${Math.ceil((new Date(auction.biddingEndTime) - new Date()) / (1000 * 60 * 60 * 24))} days left` 
+              : 'Auction ended';
+
+            return (
+              <div key={auction._id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                <div className="flex flex-col md:flex-row gap-4">
+                  <div className="flex-shrink-0 w-full md:w-40 h-40 bg-gray-100 rounded-lg overflow-hidden">
+                    {auction.artwork?.imageUrl?.[0]?.url ? (
+                      <img 
+                        src={auction.artwork.imageUrl[0].url} 
+                        alt={auction.title}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-400">
+                        <FiAward size={32} />
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="flex-grow">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="text-xl font-bold text-gray-800">{auction.artwork?.title}</h3>
+                        <p className="text-gray-600">{auction.artwork?.description?.substring(0, 60)}...</p>
+                      </div>
+                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(auction.status)}`}>
+                        {auction.status}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4 text-sm">
+                      <div className="flex items-center text-gray-600">
+                        <span>Highest Bid: <span className="font-semibold">GHS {auction.highestBid?.toFixed(2) || '0.00'}</span></span>
+                      </div>
+                      <div className="flex items-center text-gray-600">
+                        <FiBarChart2 className="mr-2" />
+                        <span>{bidCount} {bidCount === 1 ? 'bid' : 'bids'}</span>
+                      </div>
+                      <div className="flex items-center text-gray-600">
+                        <FiCalendar className="mr-2" />
+                        <span>Ends: {endDate}</span>
+                      </div>
+                      <div className="flex items-center text-gray-600">
+                        <FiClock className="mr-2" />
+                        <span>{timeRemaining}</span>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 flex gap-2">
+                      <Link 
+                        href={`/auction/${auction._id}`}
+                        className="text-sm bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-md transition-colors"
+                      >
+                        View Auction
+                      </Link>
+                      {auction.status === 'active' && (
+                        <button className="text-sm border border-blue-600 text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded-md transition-colors">
+                          Manage
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
-    );
+      ) : (
+        <div className="text-center py-12">
+          <div className="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+            <FiAward size={32} className="text-gray-400" />
+          </div>
+          <h3 className="text-lg font-medium text-gray-700">No auctions created yet</h3>
+          <p className="text-gray-500 mt-1">Your auction listings will appear here</p>
+          <Link href="/auctions" className="mt-4 inline-block text-blue-600 hover:text-blue-800">
+            Create your first auction →
+          </Link>
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default AuctionsTab;

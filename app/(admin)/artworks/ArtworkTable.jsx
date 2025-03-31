@@ -4,22 +4,30 @@ import React from "react";
 import useApi from "@/hooks/useApi";
 import { FaTrash } from "react-icons/fa";
 import { toast } from "sonner";
+import Image from "next/image";
+import { FaRegImage } from "react-icons/fa6";
 
 const ArtworkTable = ({ artworks, refetch }) => {
   // Using the new deleteData method from useApi
-  const { deleteData: deleteArtwork, loading: deletingArtwork } = useApi("/artworks");
+  const { deleteData: deleteArtwork, loading: deletingArtwork } =
+    useApi("/artworks");
 
   const handleDeleteArtwork = async (id) => {
     try {
-      const confirmDelete = window.confirm("Are you sure you want to delete this artwork?");
+      const confirmDelete = window.confirm(
+        "Are you sure you want to delete this artwork?"
+      );
       if (!confirmDelete) return;
 
-      await deleteArtwork({id:id});
-      
+      await deleteArtwork({ id: id });
+
       refetch();
       toast.success("Artwork deleted successfully");
     } catch (error) {
-      const errorMsg = error.response?.data?.message || error.message || "Failed to delete artwork";
+      const errorMsg =
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to delete artwork";
       toast.error(errorMsg);
       console.error("Error deleting artwork:", errorMsg);
     }
@@ -30,6 +38,9 @@ const ArtworkTable = ({ artworks, refetch }) => {
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">
           <tr>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Image
+            </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               Title
             </th>
@@ -44,6 +55,11 @@ const ArtworkTable = ({ artworks, refetch }) => {
         <tbody className="divide-y divide-gray-200">
           {artworks.map((artwork) => (
             <tr key={artwork._id}>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {
+                  artwork && artwork.imageUrl[0].url ? <Image src={artwork?.imageUrl[0].url} width={75} height={75} alt={artwork.title} className="w-[75px] h-[75px] rounded-full"/> : <FaRegImage />
+                }
+              </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                 {artwork.title}
               </td>

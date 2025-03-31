@@ -77,28 +77,6 @@ const AdminGraphs = ({ data }) => {
                 </ResponsiveContainer>
             </div>
 
-            {/* Earnings Chart (Pie Chart) */}
-            <div className="mb-8">
-                <h2 className="text-xl font-semibold text-gray-700 mb-4">
-                    Earnings Distribution
-                </h2>
-                <ResponsiveContainer width="100%" height={300}>
-                    <PieChart>
-                        <Pie
-                            data={earningsOverTime}
-                            dataKey="totalEarnings"
-                            nameKey="_id"
-                            cx="50%"
-                            cy="50%"
-                            outerRadius={100}
-                            fill="#fbbf24"
-                            label
-                        />
-                        <Tooltip />
-                        <Legend />
-                    </PieChart>
-                </ResponsiveContainer>
-            </div>
         </div>
     );
 };

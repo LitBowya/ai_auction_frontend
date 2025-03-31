@@ -22,9 +22,6 @@ const useApi = (endpoint = "") => {
       // Dynamically build the endpoint based on whether an ID is provided or not
       const url = id ? `${endpoint}/${id.id}` : endpoint;
 
-
-      console.log(url)
-      console.log(id)
       // Make GET request with the updated URL
       const response = await api.get(url); 
       setData(response.data);
@@ -49,9 +46,6 @@ const useApi = (endpoint = "") => {
       const url = id ? `${endpoint}/${id.id}` : endpoint;
 
 
-      console.log(url)
-      console.log(id)
-
       // Make POST request with the updated URL
       const response = await api.post(url, payload, {
         headers: {
@@ -75,9 +69,6 @@ const useApi = (endpoint = "") => {
       // Dynamically build the endpoint based on whether an ID is provided or not
       const url = id ? `${endpoint}/${id.id}` : endpoint;
 
-
-      console.log(url)
-      console.log(id)
       // Make PUT request with the updated URL
       const response = await api.put(url, payload, {
         headers: {
@@ -100,9 +91,6 @@ const useApi = (endpoint = "") => {
     try {
       // Dynamically build the endpoint based on whether an ID is provided or not
       const url = id ? `${endpoint}/${id.id}` : endpoint;
-
-      console.log(url)
-      console.log(id)
 
 
       // Make DELETE request with the updated URL

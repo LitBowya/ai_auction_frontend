@@ -1,3 +1,4 @@
+import Error from "@/components/Error";
 import ProfileTabs from "./ProfileTabs";
 
 export default async function ProfilePage({ params }) {
@@ -65,6 +66,10 @@ export default async function ProfilePage({ params }) {
     const auctionsData = await auctionsResponse.json();
 
     console.log("Auctions", auctionsData);
+
+    if(!auctionsData){
+        return (<Error message="No auction data fetched"/>)
+    }
 
     // Pass all fetched data to the client-side component
     return (
