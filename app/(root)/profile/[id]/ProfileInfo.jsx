@@ -23,7 +23,6 @@ const ProfileInfo = ({ profile }) => {
 
             const data = await response.json();
             toast.success("Profile updated successfully");
-            console.log(data.user); // Updated user profile data
         } catch (error) {
             toast.error("Failed to update profile");
         }

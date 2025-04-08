@@ -19,8 +19,6 @@ export default function Orders() {
     return <Error />
   }
 
-  console.log(data);
-
   return (
     <div className="max_width">
       <h1 className="text-2xl font-bold mb-5">Orders Monitoring</h1>

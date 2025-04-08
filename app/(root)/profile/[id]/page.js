@@ -18,7 +18,6 @@ export default async function ProfilePage({ params }) {
     );
     const profileData = await profileResponse.json();
 
-    console.log("Profile", profileData);
 
     // Fetch user orders
     const ordersResponse = await fetch(
@@ -34,8 +33,6 @@ export default async function ProfilePage({ params }) {
     );
     const ordersData = await ordersResponse.json();
 
-    console.log("Orders", ordersData);
-
     // Fetch user payments
     const paymentsResponse = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/users/${id}/payments`,
@@ -49,7 +46,6 @@ export default async function ProfilePage({ params }) {
         }
     );
     const paymentsData = await paymentsResponse.json();
-    console.log("Payments", paymentsData);
 
     // Fetch user auctions
     const auctionsResponse = await fetch(
@@ -64,8 +60,6 @@ export default async function ProfilePage({ params }) {
         }
     );
     const auctionsData = await auctionsResponse.json();
-
-    console.log("Auctions", auctionsData);
 
     if(!auctionsData){
         return (<Error message="No auction data fetched"/>)
