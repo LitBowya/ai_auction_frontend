@@ -103,9 +103,7 @@ const AuctionsTab = ({ auctions }) => {
           </div>
           <h3 className="text-lg font-medium text-gray-700">No auctions created yet</h3>
           <p className="text-gray-500 mt-1">Your auction listings will appear here</p>
-          <Link href="/auctions" className="mt-4 inline-block text-blue-600 hover:text-blue-800">
-            Create your first auction →
-          </Link>
+         
         </div>
       )}
     </div>
