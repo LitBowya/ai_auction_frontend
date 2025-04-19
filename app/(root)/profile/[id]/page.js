@@ -65,6 +65,11 @@ export default async function ProfilePage({ params }) {
         return (<Error message="No auction data fetched"/>)
     }
 
+    console.log(profileData)
+    console.log(ordersData)
+    console.log(paymentsData)
+    console.log(auctionsData)
+
     // Pass all fetched data to the client-side component
     return (
         <ProfileTabs

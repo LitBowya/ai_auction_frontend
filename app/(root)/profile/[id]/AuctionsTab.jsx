@@ -3,7 +3,7 @@
 import { FiAward, FiClock, FiBarChart2, FiCalendar } from "react-icons/fi";
 import Link from "next/link";
 
-const AuctionsTab = ({ auctions = [] }) => {
+const AuctionsTab = ({ auctions }) => {
   const getStatusColor = (status) => {
     switch (status?.toLowerCase()) {
       case 'active':
@@ -23,7 +23,7 @@ const AuctionsTab = ({ auctions = [] }) => {
     <div className="bg-white p-6 rounded-lg shadow-md max_width">
       <h2 className="text-2xl font-bold mb-6 text-gray-800 border-b pb-2">Your Auctions</h2>
 
-      {auctions.length > 0 ? (
+      {auctions && auctions.length > 0 ? (
         <div className="grid gap-4">
           {auctions.map((auction) => {
             const artwork = auction.artwork || {};

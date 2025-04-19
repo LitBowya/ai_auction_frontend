@@ -14,7 +14,7 @@ const PaymentsTab = ({ payments }) => {
         Payment History
       </h2>
 
-      {payments.length > 0 ? (
+      {payments && payments.length > 0 ? (
         <div className="space-y-4">
           {payments.map((payment) => {
             const statusColors = {

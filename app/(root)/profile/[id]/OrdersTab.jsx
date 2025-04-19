@@ -5,7 +5,7 @@ import Link from "next/link";
 import { FiDownload, FiEye, FiClock, FiCalendar } from "react-icons/fi";
 import { FaCediSign } from "react-icons/fa6";
 
-const OrdersTab = ({ orders = [] }) => {
+const OrdersTab = ({ orders }) => {
   const handleDownload = (url, title) => {
     if (!url) return;
 
@@ -25,13 +25,16 @@ const OrdersTab = ({ orders = [] }) => {
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md max_width">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800 border-b pb-2">Your Orders</h2>
+      <h2 className="text-2xl font-bold mb-6 text-gray-800 border-b pb-2">
+        Your Orders
+      </h2>
 
-      {orders.length > 0 ? (
+      {orders && orders.length > 0 ? (
         <div className="grid gap-6">
           {orders.map((order) => {
             const artwork = order?.auction?.artwork || {};
-            const imageUrl = artwork.imageUrl?.[0]?.url || "/placeholder-art.jpg";
+            const imageUrl =
+              artwork.imageUrl?.[0]?.url || "/placeholder-art.jpg";
             const title = artwork.title || "Untitled Artwork";
             const artist = artwork.owner?.name || "Unknown Artist";
             const zipUrl = artwork.pptxFile?.url;
@@ -44,7 +47,10 @@ const OrdersTab = ({ orders = [] }) => {
               : "N/A";
 
             return (
-              <div key={order._id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+              <div
+                key={order._id}
+                className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+              >
                 <div className="flex flex-col md:flex-row gap-4">
                   <div className="flex-shrink-0">
                     <Image
@@ -60,14 +66,18 @@ const OrdersTab = ({ orders = [] }) => {
                   <div className="flex-grow">
                     <div className="flex justify-between items-start">
                       <div>
-                        <h3 className="text-xl font-bold text-gray-800">{title}</h3>
+                        <h3 className="text-xl font-bold text-gray-800">
+                          {title}
+                        </h3>
                         <p className="text-gray-600">by {artist}</p>
                       </div>
-                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                        order.status === "completed"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-yellow-100 text-yellow-800"
-                      }`}>
+                      <span
+                        className={`px-3 py-1 rounded-full text-sm font-medium ${
+                          order.status === "completed"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-yellow-100 text-yellow-800"
+                        }`}
+                      >
                         {order.status || "Pending"}
                       </span>
                     </div>
@@ -119,8 +129,13 @@ const OrdersTab = ({ orders = [] }) => {
             <FiEye size={32} className="text-gray-400" />
           </div>
           <h3 className="text-lg font-medium text-gray-700">No orders yet</h3>
-          <p className="text-gray-500 mt-1">Your purchased artworks will appear here</p>
-          <Link href="/auction" className="mt-4 inline-block text-blue-600 hover:text-blue-800">
+          <p className="text-gray-500 mt-1">
+            Your purchased artworks will appear here
+          </p>
+          <Link
+            href="/auction"
+            className="mt-4 inline-block text-blue-600 hover:text-blue-800"
+          >
             Browse auctions →
           </Link>
         </div>
