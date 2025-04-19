@@ -1,13 +1,14 @@
 "use client";
+
 import Image from "next/image";
 import Link from "next/link";
-import { FiDownload, FiEye, FiClock, FiDollarSign, FiCalendar } from "react-icons/fi";
+import { FiDownload, FiEye, FiClock, FiCalendar } from "react-icons/fi";
 import { FaCediSign } from "react-icons/fa6";
 
-const OrdersTab = ({ orders }) => {
+const OrdersTab = ({ orders = [] }) => {
   const handleDownload = (url, title) => {
     if (!url) return;
-    
+
     fetch(url)
       .then((response) => response.blob())
       .then((blob) => {
@@ -25,18 +26,22 @@ const OrdersTab = ({ orders }) => {
   return (
     <div className="bg-white p-6 rounded-lg shadow-md max_width">
       <h2 className="text-2xl font-bold mb-6 text-gray-800 border-b pb-2">Your Orders</h2>
-      
+
       {orders.length > 0 ? (
         <div className="grid gap-6">
           {orders.map((order) => {
-            const artwork = order.auction?.artwork;
-            const imageUrl = artwork?.imageUrl?.[0]?.url || "/placeholder-art.jpg";
-            const title = artwork?.title || "Untitled Artwork";
-            const artist = artwork?.owner?.name || "Unknown Artist";
-            const zipUrl = artwork?.pptxFile?.url;
-            const pin = artwork?.pptxFile?.pin;
-            const orderDate = new Date(order.createdAt).toLocaleDateString();
-            const price = order.payment ? `${order.payment.amount.toFixed(2)}` : "N/A";
+            const artwork = order?.auction?.artwork || {};
+            const imageUrl = artwork.imageUrl?.[0]?.url || "/placeholder-art.jpg";
+            const title = artwork.title || "Untitled Artwork";
+            const artist = artwork.owner?.name || "Unknown Artist";
+            const zipUrl = artwork.pptxFile?.url;
+            const pin = artwork.pptxFile?.pin;
+            const orderDate = order.createdAt
+              ? new Date(order.createdAt).toLocaleDateString()
+              : "N/A";
+            const price = order.payment?.amount
+              ? Number(order.payment.amount).toFixed(2)
+              : "N/A";
 
             return (
               <div key={order._id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
@@ -51,7 +56,7 @@ const OrdersTab = ({ orders }) => {
                       priority
                     />
                   </div>
-                  
+
                   <div className="flex-grow">
                     <div className="flex justify-between items-start">
                       <div>
@@ -59,11 +64,11 @@ const OrdersTab = ({ orders }) => {
                         <p className="text-gray-600">by {artist}</p>
                       </div>
                       <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                        order.status === "completed" 
-                          ? "bg-green-100 text-green-800" 
+                        order.status === "completed"
+                          ? "bg-green-100 text-green-800"
                           : "bg-yellow-100 text-yellow-800"
                       }`}>
-                        {order.status}
+                        {order.status || "Pending"}
                       </span>
                     </div>
 
@@ -91,11 +96,11 @@ const OrdersTab = ({ orders }) => {
                             className="flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md text-sm transition-colors cursor-pointer"
                           >
                             <FiDownload size={14} />
-                            Zinc
+                            Zip
                           </button>
                         </div>
                         <div className="bg-yellow-50 p-2 rounded-md text-sm">
-                          <span className="font-medium">Unlock PIN:</span> 
+                          <span className="font-medium">Unlock PIN:</span>
                           <span className="ml-2 font-mono bg-yellow-100 px-2 py-1 rounded">
                             {pin || "Not provided"}
                           </span>

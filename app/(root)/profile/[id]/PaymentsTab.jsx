@@ -1,5 +1,10 @@
 "use client";
-import { FiCheckCircle, FiClock, FiCreditCard, FiCalendar } from "react-icons/fi";
+import {
+  FiCheckCircle,
+  FiClock,
+  FiCreditCard,
+  FiCalendar,
+} from "react-icons/fi";
 import Image from "next/image";
 
 const PaymentsTab = ({ payments }) => {
@@ -28,7 +33,9 @@ const PaymentsTab = ({ payments }) => {
               }
             );
 
-            const artworkImage = payment.auction?.artwork?.imageUrl?.[0]?.url || "/placeholder-art.jpg";
+            const artworkImage =
+              payment.auction?.artwork?.imageUrl?.[0]?.url ||
+              "/placeholder-art.jpg";
 
             return (
               <div
@@ -51,7 +58,8 @@ const PaymentsTab = ({ payments }) => {
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                       <div>
                         <h3 className="text-lg font-bold text-gray-800">
-                          {payment.auction?.artwork?.title || "Untitled Auction"}
+                          {payment.auction?.artwork?.title ||
+                            "Untitled Auction"}
                         </h3>
                         <div className="flex items-center gap-4 mt-2 flex-wrap">
                           <span
