@@ -118,7 +118,7 @@ const AboutSection = () => {
             className="absolute top-0 left-0 w-[70%] h-[70%] transform rotate-6 transition-all duration-500 ease-in-out hover:z-10 hover:scale-110"
           >
             <Image
-              src="/about1.jpg" // Replace with your image path
+              src="/about1.jpeg" // Replace with your image path
               alt="Artwork 1"
               width={400}
               height={500}
@@ -131,7 +131,7 @@ const AboutSection = () => {
             className="absolute bottom-0 right-0 w-[60%] h-[60%] transform -rotate-6 transition-all duration-500 ease-in-out hover:z-10 hover:scale-110"
           >
             <Image
-              src="/about2.jpg" // Replace with your image path
+              src="/about2.jpeg" // Replace with your image path
               alt="Artwork 2"
               width={350}
               height={450}
@@ -144,7 +144,7 @@ const AboutSection = () => {
             className="absolute bottom-0 left-0 transform -translate-x-1/2 -translate-y-1/2 w-[38%] h-[35%] transition-all duration-500 ease-in-out hover:z-10 hover:scale-110"
           >
             <Image
-              src="/about3.jpg" // Replace with your image path
+              src="/about3.jpeg" // Replace with your image path
               alt="Artwork 3"
               width={300}
               height={400}
