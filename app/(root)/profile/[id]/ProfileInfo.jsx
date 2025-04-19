@@ -6,8 +6,10 @@ import Button from "@/components/Button";
 import Error from "@/components/Error";
 
 const ProfileInfo = ({ profile }) => {
-    const [name, setName] = useState(profile.name);
-    const [email, setEmail] = useState(profile.email);
+    const user = profile?.name || "Guest";
+    const userEmail = profile?.email || "Email"
+    const [name, setName] = useState(user);
+    const [email, setEmail] = useState(userEmail);
 
     const handleUpdateProfile = async () => {
         try {
