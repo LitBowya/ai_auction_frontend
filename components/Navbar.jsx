@@ -46,7 +46,7 @@ export default function Navbar() {
         {/* Logo */}
         <Link href="/">
           <Image
-            src="../public/artbid.png"
+            src="/artbid.png"
             width={70}
             height={70}
             alt="Logo"
