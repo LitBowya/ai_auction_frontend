@@ -140,7 +140,7 @@ const AuctionDetail = ({ auction }) => {
     <div className="max_width">
       <div className="max-w-7xl p-6 grid grid-cols-1 md:grid-cols-2 gap-10 bg-white my-2 rounded-lg">
         {/* Left Section: Images */}
-        <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-4 sticky top-10">
+        <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-4 lg:sticky top-10">
           <div className="grid grid-cols-3 md:grid-cols-1 gap-2 ">
             {artwork.imageUrl.map((img, index) => (
               <Image
