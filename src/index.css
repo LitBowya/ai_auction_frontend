@@ -1,0 +1,154 @@
+@import "tailwindcss";
+
+:root {
+  --font-title: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --font-subtitle: "Segoe UI", Arial, sans-serif;
+  --font-text: Arial, "Helvetica Neue", Helvetica, sans-serif;
+}
+
+@theme {
+  /* === Core Colors === */
+  --color-primary: oklch(
+    21% 0.02 260
+  ); /* Deep charcoal for primary background */
+  --color-primary-light: oklch(
+    30% 0.03 260
+  ); /* Slightly lighter charcoal for cards */
+  --color-primary-lighter: oklch(40% 0.04 260); /* Hover state */
+
+  --color-secondary: oklch(90% 0.2 85); /* Elegant gold for accents */
+  --color-secondary-light: oklch(80% 0.2 85);
+  --color-secondary-lighter: oklch(85% 0.22 85);
+
+  --color-accent-purple: oklch(55% 0.24 320); /* Royal purple */
+  --color-accent-green: oklch(65% 0.2 145); /* Emerald green */
+  --color-accent-red: oklch(60% 0.23 27); /* Crimson red */
+
+  /* === Text Colors === */
+  --text-heading: oklch(95% 0.01 260); /* Light gray-white */
+  --text-paragraph: oklch(80% 0.01 260);
+  --text-muted: oklch(65% 0.01 260);
+
+  /* === Backgrounds === */
+  --bg-primary: var(--color-primary);
+  --bg-surface: var(--color-primary-light); /* Cards, modals */
+  --bg-hover: var(--color-primary-lighter);
+
+  /* === Borders === */
+  --border-color: oklch(35% 0.01 260);
+
+  /* === States === */
+  --state-success: var(--color-accent-green);
+  --state-danger: var(--color-accent-red);
+  --state-info: var(--color-accent-purple);
+
+  /* === Buttons === */
+  --btn-primary: var(--color-secondary);
+  --btn-primary-hover: var(--color-secondary-light);
+  --btn-secondary: var(--color-accent-purple);
+  --btn-secondary-hover: oklch(60% 0.2 320);
+}
+
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+  }
+
+  body {
+    overflow-x: hidden;
+    scrollbar-width: none;
+    background-color: var(--bg-primary);
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-title), sans-serif;
+    letter-spacing: 0.05em;
+  }
+
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-subtitle), sans-serif;
+  }
+
+  p,
+  span,
+  a,
+  li {
+    font-family: var(--font-text), sans-serif;
+  }
+
+  p {
+    overflow-wrap: break-word;
+  }
+}
+
+@layer utilities {
+  .heading-1 {
+    @apply text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-tight;
+  }
+
+  .heading-2 {
+    @apply text-3xl sm:text-4xl md:text-5xl leading-snug;
+  }
+
+  .heading-3 {
+    @apply text-2xl sm:text-3xl md:text-4xl leading-snug;
+  }
+
+  .heading-4 {
+    @apply text-xl sm:text-2xl  tracking-wide;
+  }
+
+  .heading-5 {
+    @apply text-lg sm:text-xl tracking-wide;
+  }
+
+  .heading-6 {
+    @apply text-base sm:text-lg tracking-wide;
+  }
+
+  .text {
+    @apply text-base sm:text-lg md:text-xl leading-relaxed;
+  }
+
+  .link {
+    @apply text-gray-100 duration-300 cursor-pointer font-bold hover:underline hover:text-secondary-light transition;
+  }
+
+  .max-width {
+    @apply w-full max-w-screen-sm sm:max-w-screen-md md:max-w-screen-lg lg:max-w-7xl mx-auto px-4;
+  }
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.service-clip-path {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 18% 100%, 0 70%);
+}
+
+/* Firefox & IE/Edge */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.three-line-ellipsis {
+  display: -webkit-box;
+  line-clamp: 3;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

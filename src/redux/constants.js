@@ -1,0 +1,14 @@
+export const BASE_URL = import.meta.env.VITE_API_URL;
+export const AUTH_URL = "/auth";
+export const ARTWORKS_URL = "/artworks";
+export const AUCTIONS_URL = "/auctions";
+export const BIDS_URL = "/bids";
+export const AUDITS_URL = "/Audits";
+export const NOTIFICATIONS_URL = "/notifications";
+export const PAYMENTS_URL = "/payments";
+export const SHIPPING_URL = "/shipping";
+export const CATEGORY_URL = "/category";
+export const ADMIN_URL = "/admin";
+export const CONTACT_URL = "/contact";
+export const USERS_URL = "/Users";
+export const ORDERS_URL = "/Orders";
