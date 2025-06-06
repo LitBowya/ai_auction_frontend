@@ -3,6 +3,7 @@ import {FiDownload, FiEye, FiClock, FiCalendar} from "react-icons/fi";
 import {FaCediSign} from "react-icons/fa6";
 
 const OrdersTab = ({orders}) => {
+    console.log(orders);
     const handleDownload = (url, title) => {
         if (!url) return;
 
@@ -70,12 +71,12 @@ const OrdersTab = ({orders}) => {
                                             </div>
                                             <span
                                                 className={`px-3 py-1 rounded-full text-sm font-medium ${
-                                                    order.status === "shipped"
+                                                    order?.payment?.status === "shipped"
                                                         ? "bg-green-100 text-green-800"
                                                         : "bg-yellow-100 text-yellow-800"
                                                 }`}
                                             >
-                        {order.status || "Pending"}
+                        {order?.payment?.status || "Pending"}
                       </span>
                                         </div>
 
